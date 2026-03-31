@@ -24,7 +24,6 @@ const DAYS = [
  * Uses PATCH /doctors/{doctor_id} for schema-compliant updates.
  */
 const EditDoctorModal = ({ isOpen, onClose, onSuccess, doctor }) => {
-  console.log(doctor);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -181,12 +180,12 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, doctor }) => {
 
           {/* FORM BODY */}
           <div className="flex-1 overflow-y-auto custom-scrollbar p-10 space-y-12">
-            
+
             {/* PROFILE IMAGE UPLOAD */}
             <div className="flex justify-center pb-4 border-b border-slate-50">
-              <DoctorProfileUpload 
-                doctorId={doctor.doctor_id} 
-                currentDpUrl={doctor.dp_url} 
+              <DoctorProfileUpload
+                doctorId={doctor.doctor_id}
+                currentDpUrl={doctor.dp_url}
                 onUpdateSuccess={onSuccess}
               />
             </div>

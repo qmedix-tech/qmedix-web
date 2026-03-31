@@ -9,6 +9,7 @@ import Sidebar from '../../components/Sidebar';
 import ActiveQueue from './ActiveQueue';
 import QueueStats from './QueueStats';
 import NewPatientModal from '../../components/NewPatientModal';
+import SpecialistSelect from '../../components/SpecialistSelect';
 import API from '../../api/axios';
 
 const Dashboard = () => {
@@ -175,33 +176,36 @@ const Dashboard = () => {
           <div className="max-w-[1400px] mx-auto space-y-8">
             {/* HERO-ISH SECTION / DATE */}
             <div className="flex items-center justify-between">
-              <div>
-                 <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Today's Pulse</h2>
-                <p className="text-sm font-medium text-slate-500">Real-time queue monitoring and analytics</p>
+              <div className="flex items-center gap-5">
+                <div className="w-16 h-16 bg-white border border-slate-100 rounded-[20px] flex items-center justify-center text-blue-600 shadow-sm overflow-hidden relative group/avatar">
+                  {doctors.find(d => d.doctor_id === selectedDoctorId)?.dp_url ? (
+                    <img 
+                      src={doctors.find(d => d.doctor_id === selectedDoctorId).dp_url} 
+                      alt="Specialist" 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover/avatar:scale-110"
+                    />
+                  ) : (
+                    <Stethoscope size={24} className="text-slate-200" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover/avatar:opacity-100 transition-opacity" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">Today's Pulse</h2>
+                  <p className="text-sm font-medium text-slate-500">
+                    {selectedDoctorId 
+                      ? `Monitoring queue for ${doctors.find(d => d.doctor_id === selectedDoctorId)?.name || 'Specialist'}`
+                      : 'Real-time queue monitoring and analytics'}
+                  </p>
+                </div>
               </div>
               
               <div className="flex items-center gap-4">
                 {/* DOCTOR SELECTOR */}
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-hover:text-blue-500 transition-colors">
-                    <Stethoscope size={14} />
-                  </div>
-                  <select
-                    value={selectedDoctorId}
-                    onChange={(e) => setSelectedDoctorId(e.target.value)}
-                    className="bg-white border border-slate-200 rounded-xl pl-9 pr-8 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer hover:border-slate-300 transition-all shadow-sm min-w-[200px]"
-                  >
-                    <option value="">All Specialists</option>
-                    {doctors.map(doc => (
-                      <option key={doc.doctor_id} value={doc.doctor_id}>
-                        {doc.name} ({doc.specialty})
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
-                    <Bell size={12} />
-                  </div>
-                </div>
+                <SpecialistSelect 
+                  doctors={doctors}
+                  selectedId={selectedDoctorId}
+                  onSelect={setSelectedDoctorId}
+                />
 
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-100 rounded-xl shadow-sm">
                   <Sparkles size={14} className="text-blue-600" />

@@ -7,6 +7,8 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   base: '/',
   server: {
-    historyApiFallback: true,
+    host: true,
+    port: 5173,
+    strictPort: true,
   },
 })
