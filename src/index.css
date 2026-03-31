@@ -1,0 +1,148 @@
+@import "tailwindcss";
+
+/* ------------------ THEME COLORS & TOKENS ------------------ */
+@theme {
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-soft: #eff6ff;
+  
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+
+  --color-success: #10b981;
+  --color-success-soft: #ecfdf5;
+  
+  --color-warning: #f59e0b;
+  --color-warning-soft: #fffbeb;
+  
+  --color-danger: #ef4444;
+  --color-danger-soft: #fef2f2;
+
+  --color-bg: #f8fafc;
+  --color-card: #ffffff;
+
+  --shadow-premium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  
+  --radius-premium: 12px;
+}
+
+/* ------------------ GLOBAL BASE ------------------ */
+:root {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-slate-900);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background-color: #bfdbfe;
+  color: #1e40af;
+}
+
+/* ------------------ CUSTOM UTILITIES ------------------ */
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-glass;
+  }
+  
+  .glass-dark {
+    @apply bg-slate-900/80 backdrop-blur-md border border-slate-700/30 shadow-glass;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600;
+  }
+}
+
+/* ------------------ SCROLLBAR ------------------ */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-slate-200);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-slate-300);
+}
+
+/* ------------------ REUSABLE COMPONENTS ------------------ */
+
+.card-premium {
+  @apply bg-white border border-slate-100 rounded-xl shadow-sm transition-all duration-300 hover:shadow-md;
+}
+
+.btn-premium {
+  @apply relative inline-flex items-center justify-center px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+}
+
+.btn-primary {
+  @apply bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/20 active:bg-blue-800 focus:ring-4 focus:ring-blue-100;
+}
+
+.btn-secondary {
+  @apply bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 active:bg-slate-100 focus:ring-4 focus:ring-slate-100;
+}
+
+.input-premium {
+  @apply w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10;
+}
+
+/* ------------------ ANIMATIONS ------------------ */
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.fade-in {
+  @apply animate-[fadeIn_0.5s_ease-out_forwards];
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ------------------ TOAST OVERRIDES ------------------ */
+.Toastify__toast {
+  @apply !rounded-xl !shadow-glass !backdrop-blur-xl border border-white/20 !px-4 !py-3 !text-sm !font-medium;
+}
+
+.Toastify__toast--success {
+  @apply !bg-emerald-50/90 !text-emerald-700;
+}
+
+.Toastify__toast--error {
+  @apply !bg-red-50/90 !text-red-700;
+}
+
+.Toastify__progress-bar {
+  @apply !bg-current opacity-20;
+}
