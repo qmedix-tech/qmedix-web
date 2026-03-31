@@ -109,8 +109,16 @@ const DoctorDetails = ({ doctorId = null }) => {
     >
       {/* SECTION: IDENTITY (LEFT) */}
       <div className="p-6 lg:p-8 flex items-center gap-5 border-b lg:border-b-0 lg:border-r border-slate-50 lg:w-[320px] shrink-0 bg-slate-50/20">
-        <div className="w-16 h-16 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-center text-blue-600 shadow-inner group-hover:bg-blue-600 group-hover:text-white transition-all duration-500">
-          <Stethoscope size={32} />
+        <div className="w-16 h-16 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-center text-blue-600 shadow-inner group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 overflow-hidden">
+          {doctor.dp_url ? (
+            <img 
+              src={doctor.dp_url} 
+              alt={doctor.name} 
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+          ) : (
+            <Stethoscope size={32} />
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5 whitespace-nowrap">

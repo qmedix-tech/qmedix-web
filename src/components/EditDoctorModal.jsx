@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import API from '../api/axios';
 import Input from './Input';
 import Button from './Button';
+import DoctorProfileUpload from './DoctorProfileUpload';
 
 const DAYS = [
   { value: 0, label: 'Monday' },
@@ -179,7 +180,18 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, doctor }) => {
           </div>
 
           {/* FORM BODY */}
-          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar p-10 space-y-12">
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-10 space-y-12">
+            
+            {/* PROFILE IMAGE UPLOAD */}
+            <div className="flex justify-center pb-4 border-b border-slate-50">
+              <DoctorProfileUpload 
+                doctorId={doctor.doctor_id} 
+                currentDpUrl={doctor.dp_url} 
+                onUpdateSuccess={onSuccess}
+              />
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-12">
 
             {/* IDENTITY SECTION */}
             <div className="grid md:grid-cols-2 gap-8">
@@ -348,6 +360,7 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, doctor }) => {
               </div>
             </div>
           </form>
+        </div>
 
           {/* FOOTER ACTIONS */}
           <div className="px-10 py-8 bg-slate-50 border-t border-slate-100 flex gap-4">
