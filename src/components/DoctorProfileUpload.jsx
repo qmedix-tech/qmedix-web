@@ -79,6 +79,27 @@ const DoctorProfileUpload = ({ doctorId, currentDpUrl, onUpdateSuccess }) => {
     }
   };
 
+  const handleDeleteDp = async () => {
+    if (!doctorId || !window.confirm('Are you sure you want to delete this profile photo?')) return;
+
+    try {
+      setIsUploading(true);
+      await API.delete(`/doctors/${doctorId}/dp`);
+
+      toast.success('Profile picture removed');
+      setPreviewUrl(null);
+      if (onUpdateSuccess) {
+        onUpdateSuccess(null);
+      }
+    } catch (error) {
+      console.error('Delete DP failed:', error);
+      const msg = error.response?.data?.message || 'Failed to remove profile picture';
+      toast.error(msg);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleCancel = () => {
     setSelectedFile(null);
     setPreviewUrl(currentDpUrl);
@@ -159,7 +180,7 @@ const DoctorProfileUpload = ({ doctorId, currentDpUrl, onUpdateSuccess }) => {
 
       {/* ACTION BUTTONS */}
       <AnimatePresence>
-        {selectedFile && !isUploading && (
+        {selectedFile && !isUploading ? (
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -181,14 +202,29 @@ const DoctorProfileUpload = ({ doctorId, currentDpUrl, onUpdateSuccess }) => {
               Save Changes
             </button>
           </motion.div>
-        )}
+        ) : !selectedFile && currentDpUrl && !isUploading ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center gap-3"
+          >
+            <button
+              onClick={handleDeleteDp}
+              className="px-4 py-2 text-rose-500 bg-rose-50 border border-rose-100 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all flex items-center gap-2"
+            >
+              <X size={14} />
+              Remove Photo
+            </button>
+          </motion.div>
+        ) : null}
       </AnimatePresence>
 
-      {!selectedFile && !isUploading && (
+      {!selectedFile && !isUploading && !currentDpUrl && (
         <p className="text-[11px] font-medium text-slate-400 text-center max-w-[200px]">
           Click or drop an image here to update the specialist's profile picture
         </p>
       )}
+
     </div>
   );
 };

@@ -24,7 +24,7 @@ const DAYS_NAME = [
  * Receives 'doctorId' as a prop or auto-discovers the first doctor record.
  * Layout: Left (Identity) | Middle (Bio/Contact) | Right (Schedules)
  */
-const DoctorDetails = ({ doctorId = null }) => {
+const DoctorDetails = ({ doctorId = null, onDeleteSuccess }) => {
   const [loading, setLoading] = useState(true);
   const [doctor, setDoctor] = useState(null);
   const [error, setError] = useState(null);
@@ -209,6 +209,7 @@ const DoctorDetails = ({ doctorId = null }) => {
         onClose={() => setIsEditModalOpen(false)}
         doctor={doctor}
         onSuccess={fetchData}
+        onDeleteSuccess={onDeleteSuccess}
       />
 
       {/* VERTICAL STATUS ACCENT (HOVER ONLY) */}

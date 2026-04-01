@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Plus, Trash2, Loader2, Save, Stethoscope, Phone, Info, CalendarDays, CheckCircle2, Clock, Sparkles } from 'lucide-react';
+import { X, Plus, Trash2, Loader2, Save, Stethoscope, Phone, Info, CalendarDays, CheckCircle2, Clock, Sparkles, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import API from '../api/axios';
@@ -216,14 +216,35 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
                 </div>
               </div>
 
-              <Input
-                label="Primary Specialty"
-                name="specialty"
-                value={formData.specialty}
-                onChange={handleInputChange}
-                placeholder="e.g. Pediatrics"
-                required
-              />
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Primary Specialty</label>
+                <div className="relative group/input">
+                   <select
+                    name="specialty"
+                    value={formData.specialty}
+                    onChange={handleInputChange}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer hover:border-slate-300 transition-all duration-200"
+                    required
+                  >
+                    <option value="" disabled>Select Specialty</option>
+                    <option value="General Practice">General Practice</option>
+                    <option value="Cardiology">Cardiology</option>
+                    <option value="Dermatology">Dermatology</option>
+                    <option value="Orthopedic">Orthopedic</option>
+                    <option value="Pediatrics">Pediatrics</option>
+                    <option value="Gynecology">Gynecology</option>
+                    <option value="ENT">ENT</option>
+                    <option value="Neurology">Neurology</option>
+                    <option value="Dentistry">Dentistry</option>
+                    <option value="Ophthalmology">Ophthalmology</option>
+                    <option value="Psychiatry">Psychiatry</option>
+                    <option value="Physiotherapy">Physiotherapy</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
+                    <ChevronDown size={14} />
+                  </div>
+                </div>
+              </div>
 
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Status</label>

@@ -117,7 +117,10 @@ const Doctors = () => {
                   {filteredDoctors.map((doc, idx) => (
                     <div key={doc.doctor_id || doc.id || idx}>
                        {/* ROW-WISE HORIZONTAL CARD */}
-                       <DoctorDetails doctorId={doc.doctor_id || doc.id || doc._id} />
+                       <DoctorDetails 
+                         doctorId={doc.doctor_id || doc.id || doc._id} 
+                         onDeleteSuccess={fetchDoctors}
+                       />
                     </div>
                   ))}
                 </AnimatePresence>

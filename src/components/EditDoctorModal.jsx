@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, Loader2, Save, Stethoscope, Phone, Info, CalendarDays, CheckCircle2, Clock, Sparkles } from 'lucide-react';
+import { X, Plus, Trash2, Loader2, Save, Stethoscope, Phone, Info, CalendarDays, CheckCircle2, Clock, Sparkles, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import API from '../api/axios';
@@ -23,7 +23,7 @@ const DAYS = [
  * Implements schedule mapping from backend ranges back to simplified form rows.
  * Uses PATCH /doctors/{doctor_id} for schema-compliant updates.
  */
-const EditDoctorModal = ({ isOpen, onClose, onSuccess, doctor }) => {
+const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor }) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -135,6 +135,33 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, doctor }) => {
     }
   };
 
+  const handleDeleteDoctor = async () => {
+    if (!doctor.doctor_id || !window.confirm('WARNING: Are you sure you want to permanently delete this specialist record? This action cannot be undone.')) return;
+
+    setLoading(true);
+    try {
+      await API.delete(`/doctors/${doctor.doctor_id}`);
+      
+      toast.success('Specialist record deleted successfully', {
+        icon: <Trash2 className="text-rose-500" />
+      });
+
+      if (onDeleteSuccess) {
+        onDeleteSuccess();
+      } else if (onSuccess) {
+        onSuccess();
+      }
+      
+      onClose();
+    } catch (error) {
+      console.error('Delete failed:', error);
+      const errorMessage = error.response?.data?.errorMessage || error.response?.data?.message || 'Failed to delete specialist.';
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -226,14 +253,35 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, doctor }) => {
                 </div>
               </div>
 
-              <Input
-                label="Primary Specialty"
-                name="specialty"
-                value={formData.specialty}
-                onChange={handleInputChange}
-                placeholder="e.g. Pediatrics"
-                required
-              />
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Primary Specialty</label>
+                <div className="relative group/input">
+                   <select
+                    name="specialty"
+                    value={formData.specialty}
+                    onChange={handleInputChange}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer"
+                    required
+                  >
+                    <option value="" disabled>Select Specialty</option>
+                    <option value="General Practice">General Practice</option>
+                    <option value="Cardiology">Cardiology</option>
+                    <option value="Dermatology">Dermatology</option>
+                    <option value="Orthopedic">Orthopedic</option>
+                    <option value="Pediatrics">Pediatrics</option>
+                    <option value="Gynecology">Gynecology</option>
+                    <option value="ENT">ENT</option>
+                    <option value="Neurology">Neurology</option>
+                    <option value="Dentistry">Dentistry</option>
+                    <option value="Ophthalmology">Ophthalmology</option>
+                    <option value="Psychiatry">Psychiatry</option>
+                    <option value="Physiotherapy">Physiotherapy</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
+                    <ChevronDown size={14} />
+                  </div>
+                </div>
+              </div>
 
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Operational Status</label>
@@ -362,29 +410,42 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, doctor }) => {
         </div>
 
           {/* FOOTER ACTIONS */}
-          <div className="px-10 py-8 bg-slate-50 border-t border-slate-100 flex gap-4">
+          <div className="px-10 py-8 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-4">
             <Button
               type="button"
               variant="outline"
-              className="flex-1 py-4 border-slate-200 text-slate-500 font-bold"
-              onClick={onClose}
-            >
-              Cancel Changes
-            </Button>
-            <Button
-              type="submit"
+              className="flex-1 min-w-[140px] py-4 border-slate-200 text-rose-500 hover:bg-rose-50 hover:border-rose-100 font-bold flex items-center justify-center gap-2"
+              onClick={handleDeleteDoctor}
               loading={loading}
-              className="flex-1 py-4 shadow-2xl shadow-blue-200"
-              icon={Save}
-              onClick={handleSubmit}
+              icon={Trash2}
             >
-              Save Profile Updates
+              Delete Specialist
             </Button>
+            <div className="flex flex-1 gap-4 min-w-[300px]">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 py-4 border-slate-200 text-slate-500 font-bold"
+                onClick={onClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                loading={loading}
+                className="flex-[2] py-4 shadow-2xl shadow-blue-200"
+                icon={Save}
+                onClick={handleSubmit}
+              >
+                Save Profile Updates
+              </Button>
+            </div>
           </div>
         </motion.div>
       </div>
     </AnimatePresence>
   );
 };
+
 
 export default EditDoctorModal;
