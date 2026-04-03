@@ -146,7 +146,7 @@ const ClinicProfile = () => {
 
   if (initialLoading) {
     return (
-      <div className="min-h-screen bg-slate-50/50 flex">
+      <div className="min-h-screen bg-[#F4F7FE] flex">
         <Sidebar />
         <main className="flex-1 flex flex-col items-center justify-center">
             <div className="flex flex-col items-center gap-4">
@@ -159,7 +159,7 @@ const ClinicProfile = () => {
   }
 
   return (
-    <div className="min-h-screen flex bg-slate-50/50">
+    <div className="min-h-screen flex bg-[#F4F7FE]">
       <Sidebar />
 
       <main className="flex-1 flex flex-col h-screen overflow-hidden">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Phone, Calendar, Loader2, CheckCircle2, UserPlus, Sparkles, Stethoscope } from 'lucide-react';
+import { X, User, Phone, Calendar, Loader2, CheckCircle2, UserPlus, Sparkles, Stethoscope, Clock } from 'lucide-react';
 import { toast } from 'react-toastify';
 import API from '../api/axios';
 import Input from './Input';
@@ -16,13 +16,70 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
     patient_phone: '',
     doctor_id: '',
     date: new Date().toISOString().split('T')[0],
+    slot_start: '',
+    slot_end: '',
   });
+
+  const [doctorSchedule, setDoctorSchedule] = useState([]);
+  const [scheduleLoading, setScheduleLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       fetchDoctors();
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (formData.doctor_id && isOpen) {
+       fetchDoctorSchedule(formData.doctor_id);
+    }
+  }, [formData.doctor_id, isOpen]);
+
+  const fetchDoctorSchedule = async (doctorId) => {
+    setScheduleLoading(true);
+    try {
+      const { data } = await API.get(`/doctors/details/${doctorId}`);
+      setDoctorSchedule(data.availability?.weekly_schedule || []);
+    } catch (e) {
+      console.error('Failed to load schedule:', e);
+      setDoctorSchedule([]);
+    } finally {
+      setScheduleLoading(false);
+    }
+  };
+
+  const getDaySlots = () => {
+    if (!formData.date || !doctorSchedule.length) return [];
+    
+    // Convert YYYY-MM-DD safely into a Day string
+    const [year, month, day] = formData.date.split('-');
+    const dateObj = new Date(year, month - 1, day);
+    const dayOfWeek = dateObj.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+    
+    const schedule = doctorSchedule.find(s => s.day === dayOfWeek);
+    return schedule?.slots || [];
+  };
+
+  const availableSlots = getDaySlots();
+
+  useEffect(() => {
+    // Auto-select first slot when date/schedule changes
+    if (availableSlots.length > 0) {
+      const firstSlot = availableSlots[0];
+      setFormData(prev => ({
+        ...prev,
+        slot_start: firstSlot.start_time.substring(0, 5),
+        slot_end: firstSlot.end_time.substring(0, 5)
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        slot_start: '',
+        slot_end: ''
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.date, doctorSchedule]);
 
   const fetchDoctors = async () => {
     setDoctorsLoading(true);
@@ -99,7 +156,9 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
         doctor_id: String(formData.doctor_id),
         patient_name: formData.patient_name.trim(),
         patient_phone: formData.patient_phone.trim(),
-        date: formData.date
+        date: formData.date,
+        slot_start: formData.slot_start,
+        slot_end: formData.slot_end
       };
 
       const { data } = await API.post('/tokens/manual-book', payload);
@@ -117,6 +176,8 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
         patient_phone: '',
         doctor_id: '',
         date: new Date().toISOString().split('T')[0],
+        slot_start: '',
+        slot_end: '',
       });
 
     } catch (error) {
@@ -253,6 +314,53 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
                   </select>
 
                   {doctorsLoading && (
+                    <div className="absolute inset-y-0 right-10 flex items-center">
+                      <Loader2 size={14} className="animate-spin text-blue-500" />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-1.5 md:col-span-2">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                  Select Time Slot
+                </label>
+
+                <div className="relative group/input">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+                    <Clock size={18} />
+                  </div>
+
+                  <select
+                    name="time_slot"
+                    value={formData.slot_start ? `${formData.slot_start}-${formData.slot_end}` : ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (!val) return;
+                      const [start, end] = val.split('-');
+                      setFormData(prev => ({ ...prev, slot_start: start, slot_end: end }));
+                    }}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500"
+                    required
+                  >
+                    <option value="" disabled>Select available time</option>
+
+                    {availableSlots.map((slot, idx) => {
+                      const start = slot.start_time.substring(0, 5);
+                      const end = slot.end_time.substring(0, 5);
+                      return (
+                         <option key={idx} value={`${start}-${end}`}>
+                           {start} to {end}
+                         </option>
+                      )
+                    })}
+
+                    {availableSlots.length === 0 && !scheduleLoading && (
+                      <option disabled>No valid slots for this date</option>
+                    )}
+                  </select>
+
+                  {scheduleLoading && (
                     <div className="absolute inset-y-0 right-10 flex items-center">
                       <Loader2 size={14} className="animate-spin text-blue-500" />
                     </div>

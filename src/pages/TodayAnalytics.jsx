@@ -86,7 +86,7 @@ const TodayAnalytics = () => {
     : 0;
 
   return (
-    <div className="min-h-screen flex bg-slate-50/50">
+    <div className="min-h-screen flex bg-[#F4F7FE]">
       <Sidebar />
 
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -140,7 +140,7 @@ const TodayAnalytics = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.1 }}
                     whileHover={{ y: -4 }}
-                    className={`bg-white p-6 rounded-[32px] border ${card.borderColor} shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 relative overflow-hidden group`}
+                    className={`bg-white p-5 rounded-2xl border ${card.borderColor} shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 relative overflow-hidden group`}
                   >
                      <div className={`absolute -right-4 -top-4 w-16 h-16 ${card.bg} rounded-full opacity-0 group-hover:opacity-40 transition-opacity duration-500`} />
                      
@@ -172,12 +172,12 @@ const TodayAnalytics = () => {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
                 
                 {/* EFFICIENCY OVERVIEW */}
-                <div className="lg:col-span-8 bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm relative overflow-hidden group">
+                <div className="lg:col-span-8 bg-white p-8 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-8 opacity-5">
                     <TrendingUp size={160} />
                   </div>
                   
-                  <div className="flex items-center justify-between mb-10">
+                  <div className="flex items-center justify-between mb-8">
                     <div>
                       <h3 className="text-xl font-bold text-slate-900 tracking-tight">Efficiency Overview</h3>
                       <p className="text-sm font-medium text-slate-500">Service completion rate and timing metrics</p>
@@ -249,7 +249,7 @@ const TodayAnalytics = () => {
                 </div>
 
                 {/* RIGHT SUMMARY CARD */}
-                <div className="lg:col-span-4 bg-gradient-to-br from-blue-700 via-indigo-800 to-slate-900 p-10 rounded-[40px] shadow-2xl shadow-blue-200/50 relative overflow-hidden flex flex-col justify-between group">
+                <div className="lg:col-span-4 bg-gradient-to-br from-blue-700 via-indigo-800 to-slate-900 p-8 rounded-3xl shadow-2xl shadow-blue-200/50 relative overflow-hidden flex flex-col justify-between group">
                   {/* Decorative Elements */}
                   <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-[80px]" />
                   <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-blue-500/20 rounded-full blur-[80px]" />
@@ -292,7 +292,7 @@ const TodayAnalytics = () => {
               </div>
 
                {/* BOTTOM TIP */}
-               <div className="bg-white border border-slate-100 p-6 rounded-[32px] flex items-center gap-4 shadow-sm max-w-2xl">
+               <div className="bg-white border border-slate-100 p-5 rounded-2xl flex items-center gap-4 shadow-sm max-w-2xl">
                   <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 shrink-0">
                     <Zap size={18} />
                   </div>

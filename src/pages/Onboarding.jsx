@@ -143,7 +143,7 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50/50">
+    <div className="min-h-screen flex flex-col bg-[#F4F7FE]">
       <Navbar />
 
       <div className="flex-1 flex items-start justify-center p-6 pt-32 pb-20 overflow-y-auto custom-scrollbar">

@@ -27,7 +27,7 @@ const Navbar = () => {
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     const checkAuth = () =>
-      setIsAuthenticated(!!localStorage.getItem("id_token"));
+      setIsAuthenticated(!!localStorage.getItem("access_token"));
 
     window.addEventListener("scroll", handleScroll);
     checkAuth();
@@ -89,9 +89,9 @@ const Navbar = () => {
       {/* CENTER BADGE (LANDING ONLY) */}
       {isLandingPage && (
         <div className="hidden lg:flex items-center justify-center">
-           <div className="px-6 py-2 bg-blue-50/50 backdrop-blur-sm border border-blue-100/50 rounded-full flex items-center gap-2">
-             <Sparkles size={14} className="text-blue-600" />
-             <span className="text-[10px] font-black text-blue-700 uppercase tracking-[0.2em] leading-none pt-0.5">
+           <div className="px-6 py-2 bg-emerald-50/80 backdrop-blur-sm border border-emerald-100 rounded-full flex items-center gap-2">
+             <Sparkles size={14} className="text-emerald-500" />
+             <span className="text-[10px] font-black text-emerald-700 uppercase tracking-[0.2em] leading-none pt-0.5">
                THE FUTURE OF CLINIC MANAGEMENT
              </span>
            </div>
@@ -125,7 +125,7 @@ const Navbar = () => {
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate("/get-started")}
-                className="px-6 py-3 bg-blue-600 text-white rounded-2xl text-sm font-black shadow-[0_15px_30px_rgba(37,99,235,0.25)] flex items-center gap-2 transition-all hover:bg-blue-700"
+                className="px-6 py-3 bg-[#1E293B] text-white rounded-2xl text-sm font-black shadow-[0_15px_30px_rgba(30,41,59,0.25)] flex items-center gap-2 transition-all hover:bg-[#0f172a]"
               >
                 Get Started
                 <ArrowRight size={18} />
@@ -178,7 +178,7 @@ const Navbar = () => {
                 }
                 setIsOpen(false);
               }}
-              className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xl shadow-xl shadow-blue-200 flex items-center justify-center gap-3"
+              className="w-full py-5 bg-[#1E293B] text-white rounded-2xl font-black text-xl shadow-[0_10px_30px_rgb(30,41,59,0.2)] flex items-center justify-center gap-3"
             >
               {isAuthenticated ? (isOnboarding ? 'Log Out' : 'Go to Dashboard') : 'Get Started Now'}
               <ArrowRight size={20} />

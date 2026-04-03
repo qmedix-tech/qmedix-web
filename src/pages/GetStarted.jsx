@@ -38,9 +38,10 @@ const GetStarted = () => {
         role: "CLINIC"
       });
 
-      const { uid, email, role, id_token, clinic_id, patient_id } = data;
+      const { email, role, access_token, refresh_token, clinic_id } = data;
 
-      localStorage.setItem("id_token", id_token);
+      localStorage.setItem("access_token", access_token);
+      localStorage.setItem("refresh_token", refresh_token);
       localStorage.setItem(
         "user",
         JSON.stringify({
@@ -59,7 +60,6 @@ const GetStarted = () => {
       }
     } catch (error) {
       const message =
-        error.response?.data?.errorMessage ||
         "Invalid credentials. Please try again.";
       toast.error(message);
     } finally {
@@ -68,15 +68,15 @@ const GetStarted = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50/50 overflow-y-auto custom-scrollbar">
+    <div className="min-h-screen flex flex-col bg-[#F4F7FE] overflow-y-auto custom-scrollbar">
       <Navbar />
 
       {/* Added pt-32 to provide clearance for the fixed Navbar */}
       <main className="flex-1 flex items-center justify-center p-6 pt-32 lg:pt-40 pb-20 relative">
         {/* DECORATIVE ELEMENTS */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg h-full -z-10 opacity-20 pointer-events-none">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-400 rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-400 rounded-full blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg h-full -z-10 opacity-40 pointer-events-none">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#A7F3D0] rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#DBEAFE] rounded-full blur-[120px]" />
         </div>
 
         <motion.div
@@ -87,15 +87,15 @@ const GetStarted = () => {
           {/* LOGIN CARD */}
           <div className="bg-white border border-slate-100 rounded-[40px] p-8 md:p-12 shadow-2xl shadow-slate-200/50 relative overflow-hidden group">
             {/* TOP ACCENT */}
-            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
-            
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-400 via-[#1E293B] to-blue-400" />
+
             <div className="text-center mb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#1E293B] text-[#6EE7B7] rounded-full mb-4 shadow-sm">
                 <Sparkles size={14} />
-                <span className="text-[10px] font-black uppercase tracking-widest mt-0.5">Secure Gateway</span>
+                <span className="text-[10px] font-black uppercase tracking-widest mt-0.5 text-white">Secure Gateway</span>
               </div>
               <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Clinic Login</h1>
-              <p className="text-slate-500 font-medium text-sm leading-relaxed">
+              <p className="text-slate-500 font-bold text-[13px] leading-relaxed">
                 Empowering healthcare efficiency with digital-first solutions.
               </p>
             </div>
@@ -127,7 +127,7 @@ const GetStarted = () => {
               <Button
                 type="submit"
                 loading={loading}
-                className="w-full py-5 text-lg shadow-2xl shadow-blue-200"
+                className="w-full py-5 text-[17px] font-bold bg-[#1E293B] hover:bg-[#0F172A] text-white shadow-[0_15px_40px_rgb(30,41,59,0.3)] rounded-2xl"
                 icon={LogIn}
                 iconPosition="right"
               >

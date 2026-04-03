@@ -73,7 +73,7 @@ const QRCodeGenerator = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-50/50">
+    <div className="min-h-screen flex bg-[#F4F7FE]">
       <Sidebar />
 
       <main className="flex-1 flex flex-col h-screen overflow-hidden">

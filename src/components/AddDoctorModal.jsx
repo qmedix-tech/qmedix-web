@@ -7,13 +7,13 @@ import Input from './Input';
 import Button from './Button';
 
 const DAYS = [
-  { value: 0, label: 'Monday' },
-  { value: 1, label: 'Tuesday' },
-  { value: 2, label: 'Wednesday' },
-  { value: 3, label: 'Thursday' },
-  { value: 4, label: 'Friday' },
-  { value: 5, label: 'Saturday' },
-  { value: 6, label: 'Sunday' },
+  { value: 'MONDAY', label: 'Monday' },
+  { value: 'TUESDAY', label: 'Tuesday' },
+  { value: 'WEDNESDAY', label: 'Wednesday' },
+  { value: 'THURSDAY', label: 'Thursday' },
+  { value: 'FRIDAY', label: 'Friday' },
+  { value: 'SATURDAY', label: 'Saturday' },
+  { value: 'SUNDAY', label: 'Sunday' },
 ];
 
 const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
@@ -25,7 +25,7 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
     description: '',
     is_active: true,
     schedules: [
-      { day_of_week: 0, start_time: '09:00', end_time: '17:00' }
+      { day_of_week: 'MONDAY', start_time: '09:00', end_time: '17:00' }
     ]
   });
 
@@ -45,7 +45,7 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
       ...prev,
       schedules: [
         ...prev.schedules,
-        { day_of_week: 0, start_time: '09:00', end_time: '17:00' }
+        { day_of_week: 'MONDAY', start_time: '09:00', end_time: '17:00' }
       ]
     }));
   };
@@ -59,7 +59,7 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
 
   const handleScheduleChange = (index, field, value) => {
     const newSchedules = [...formData.schedules];
-    newSchedules[index][field] = field === 'day_of_week' ? parseInt(value) : value;
+    newSchedules[index][field] = value;
     setFormData(prev => ({ ...prev, schedules: newSchedules }));
   };
 
@@ -95,7 +95,7 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
         description: formData.description?.trim() || null,
         is_active: formData.is_active,
         schedules: formData.schedules.map(s => ({
-          day_of_week: Number(s.day_of_week),
+          day_of_week: s.day_of_week,
           ranges: [
             {
               start: s.start_time,
@@ -121,7 +121,7 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
         specialty: '',
         description: '',
         is_active: true,
-        schedules: [{ day_of_week: 0, start_time: '09:00', end_time: '17:00' }]
+        schedules: [{ day_of_week: 'MONDAY', start_time: '09:00', end_time: '17:00' }]
       });
 
     } catch (error) {

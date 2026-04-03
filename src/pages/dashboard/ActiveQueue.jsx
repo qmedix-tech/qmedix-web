@@ -7,14 +7,14 @@ import { toast } from 'react-toastify';
 import API from '../../api/axios';
 import Button from '../../components/Button';
 
-const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate }) => {
+const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) => {
   const [activeTokens, setActiveTokens] = useState([]);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(null);
 
   useEffect(() => {
     fetchActiveTokens();
-  }, [doctorId]);
+  }, [doctorId, refreshTrigger]);
 
   const fetchActiveTokens = async () => {
     try {
@@ -38,7 +38,7 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate }) => {
     }
   };
 
-  const handleQueueAction = async (action) => {
+  const handleQueueAction = async (action, tokenId = null) => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const clinicId = user.clinic_id;
 
@@ -48,7 +48,7 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate }) => {
     }
 
     try {
-      setActionLoading(action);
+      setActionLoading({ action, tokenId });
       await API.post(`/queues/${clinicId}/${doctorId}/${action}`);
 
       const actionLabels = {
@@ -76,8 +76,9 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate }) => {
      if (!window.confirm(confirmText)) return;
 
      try {
-       setActionLoading('cancel');
        const tokenId = token.id || token.token_id;
+       setActionLoading({ action: 'cancel', tokenId });
+       
        await API.delete(`/tokens/${tokenId}/cancel`);
        toast.success(`Token #${token.token_number} cancelled`);
 
@@ -111,11 +112,11 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate }) => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => handleQueueAction('call-next')}
-            disabled={actionLoading === 'call-next' || loading}
-            className="btn-premium btn-primary flex items-center gap-2 shadow-lg shadow-blue-200"
+            disabled={actionLoading?.action === 'call-next' || loading}
+            className="btn-premium btn-primary bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 shadow-[0_8px_20px_rgba(37,99,235,0.25)] rounded-xl py-2.5 px-5"
           >
-            {actionLoading === 'call-next' ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            {actionLoading?.action === 'call-next' ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
               <UserCheck size={18} />
             )}
@@ -126,7 +127,7 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate }) => {
             whileHover={{ scale: 1.02, backgroundColor: '#f8fafc' }}
             whileTap={{ scale: 0.98 }}
             onClick={onNewPatient}
-            className="btn-premium btn-secondary flex items-center gap-2"
+            className="btn-premium btn-secondary bg-white border border-slate-200 text-slate-700 flex items-center gap-2 rounded-xl py-2.5 px-5"
           >
             <UserPlus size={18} className="text-blue-600" />
             Add Patient
@@ -135,106 +136,119 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate }) => {
       </div>
 
       {/* QUEUE CONTENT */}
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="h-48 bg-white border border-slate-100 rounded-3xl animate-pulse" />
-          ))}
+      <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] overflow-hidden">
+        {/* TABLE HEADER */}
+        <div className="grid grid-cols-[1fr_1.5fr_1fr_1.5fr_auto] gap-4 p-5 border-b border-slate-50 bg-[#F4F7FE]">
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-2">Token</div>
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Patient</div>
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Phone</div>
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Status / Action</div>
+          <div className="w-10"></div>
         </div>
-      ) : activeTokens.length > 0 ? (
-        <motion.div
-          layout
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          <AnimatePresence mode="popLayout">
-            {activeTokens.map((token, idx) => (
-              <motion.div
-                key={token.id || token.token_number}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="group relative bg-white border border-slate-100 p-6 rounded-3xl shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300"
-              >
-                {/* TOKEN BADGE */}
-                <div className="absolute -top-3 -right-3 w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black text-lg shadow-lg shadow-blue-200 border-4 border-white rotate-12 group-hover:rotate-0 transition-transform duration-300">
-                  {token.token_number}
-                </div>
 
-                <div className="flex flex-col h-full">
-                  <div className="mb-4">
-                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-2.5 py-1 rounded-lg">
-                      In Progress
-                    </span>
-                    <h3 className="text-lg font-bold text-slate-800 mt-3 line-clamp-1">
-                      {token.patient_name || token.name || 'Anonymous Patient'}
-                    </h3>
-                    <div className="flex items-center gap-1.5 mt-1 text-slate-500">
-                      <Phone size={13} />
-                      <span className="text-xs font-medium">{token.patient_phone || token.phone || 'N/A'}</span>
+        {/* TABLE BODY */}
+        <div className="p-2">
+          {loading ? (
+            <div className="space-y-2">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-16 bg-slate-50 rounded-2xl animate-pulse" />
+              ))}
+            </div>
+          ) : activeTokens.length > 0 ? (
+            <motion.div layout className="space-y-2">
+              <AnimatePresence mode="popLayout">
+                {activeTokens.map((token, idx) => (
+                  <motion.div
+                    key={token.id || token.token_number}
+                    layout
+                    initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.98, x: -10 }}
+                    className="group flex items-center grid grid-cols-[1fr_1.5fr_1fr_1.5fr_auto] gap-4 p-3 rounded-2xl hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3 pl-2">
+                      <div className="w-10 h-10 bg-slate-100 text-slate-700 rounded-xl flex items-center justify-center font-bold">
+                        #{token.token_number}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="mt-auto pt-5 border-t border-slate-50 flex items-center gap-3">
-                    {/* SKIP ACTION */}
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleQueueAction('skip')}
-                      disabled={actionLoading}
-                      className="flex-1 btn-premium bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-100 text-[13px] font-bold py-2 gap-2"
-                    >
-                      {actionLoading === 'skip' ? (
-                        <div className="w-3.5 h-3.5 border-2 border-blue-500/30 border-t-blue-600 rounded-full animate-spin" />
-                      ) : (
-                        <FastForward size={16} />
-                      )}
-                      Skip
-                    </motion.button>
+                    <div>
+                      <p className="text-[14px] font-bold text-slate-800 line-clamp-1">
+                        {token.patient_name || token.name || 'Anonymous Patient'}
+                      </p>
+                    </div>
 
-                    {/* CANCEL ACTION */}
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleCancelToken(token)}
-                      disabled={actionLoading}
-                      className="flex-1 btn-premium bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-100 text-[13px] font-bold py-2 gap-2"
-                    >
-                      {actionLoading === 'cancel' ? (
-                        <div className="w-3.5 h-3.5 border-2 border-rose-400/30 border-t-rose-500 rounded-full animate-spin" />
+                    <div className="flex items-center gap-1.5 text-slate-500">
+                      <Phone size={14} className="opacity-50" />
+                      <span className="text-sm font-medium">{token.patient_phone || token.phone || '--'}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {idx === 0 ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-black uppercase tracking-widest border border-blue-100">
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" /> Next
+                        </span>
                       ) : (
-                        <Trash2 size={16} />
+                        <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-widest border border-slate-200">
+                          Waiting
+                        </span>
                       )}
-                      Delete
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white border-2 border-dashed border-slate-200 rounded-[32px] p-16 flex flex-col items-center text-center"
-        >
-          <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-            <Inbox size={32} className="text-slate-300" />
-          </div>
-          <h3 className="text-xl font-bold text-slate-800">Queue is Clear</h3>
-          <p className="text-slate-500 max-w-xs mt-2">No patients are currently in the active queue. Call the next patient or add a new one manually.</p>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onNewPatient}
-            className="mt-8 btn-premium btn-primary gap-2 px-8"
-          >
-            <UserPlus size={18} />
-            Add First Patient
-          </motion.button>
-        </motion.div>
-      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity justify-end pr-2">
+                      <button
+                        onClick={() => handleQueueAction('skip', token.id || token.token_id)}
+                        disabled={!!actionLoading}
+                        className="relative p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100 flex items-center justify-center"
+                        title="Skip"
+                      >
+                         {actionLoading?.action === 'skip' && actionLoading?.tokenId === (token.id || token.token_id) ? (
+                            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                         ) : (
+                            <FastForward size={16} />
+                         )}
+                      </button>
+                      <button
+                        onClick={() => handleCancelToken(token)}
+                        disabled={!!actionLoading}
+                        className="relative p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors border border-transparent hover:border-rose-100 flex items-center justify-center"
+                        title="Delete"
+                      >
+                         {actionLoading?.action === 'cancel' && actionLoading?.tokenId === (token.id || token.token_id) ? (
+                            <div className="w-4 h-4 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
+                         ) : (
+                            <Trash2 size={16} />
+                         )}
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="py-16 flex flex-col items-center text-center"
+            >
+              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                <Inbox size={28} className="text-slate-300" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-800">Queue is Clear</h3>
+              <p className="text-sm text-slate-500 max-w-xs mt-1">No patients are currently in the active queue.</p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={onNewPatient}
+                className="mt-6 btn-premium btn-secondary gap-2"
+              >
+                <UserPlus size={16} />
+                Add First Patient
+              </motion.button>
+            </motion.div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

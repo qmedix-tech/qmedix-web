@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 /* ------------------ THEME COLORS & TOKENS ------------------ */
@@ -98,7 +99,7 @@ html {
 }
 
 .btn-primary {
-  @apply bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/20 active:bg-blue-800 focus:ring-4 focus:ring-blue-100;
+  @apply bg-[#1E293B] text-white hover:bg-[#0F172A] hover:shadow-lg hover:shadow-slate-500/20 active:bg-black focus:ring-4 focus:ring-slate-100;
 }
 
 .btn-secondary {
