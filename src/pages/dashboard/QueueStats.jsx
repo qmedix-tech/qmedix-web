@@ -95,24 +95,29 @@ const QueueStats = ({ clinicId, doctorId, refreshTrigger, onAction }) => {
             whileHover={{ y: -4 }}
             className={`relative p-5 rounded-2xl border ${c.border}
             bg-gradient-to-br ${c.bg}
-            h-[190px] flex flex-col justify-between shadow-sm`}
+            h-[190px] flex flex-col justify-between shadow-sm ${loading ? 'animate-pulse' : ''}`}
           >
             {/* HEADER */}
             <div className="flex justify-between items-center">
               <div className="w-9 h-9 rounded-xl bg-white/50 flex items-center justify-center">
-                {card.color === "blue" && <Users size={16} />}
-                {card.color === "amber" && <Clock size={16} />}
+                {loading ? null : (
+                  <>
+                    {card.isNowServing && <CheckCircle2 size={16} />}
+                    {card.color === "blue" && <Users size={16} />}
+                    {card.color === "amber" && <Clock size={16} />}
+                  </>
+                )}
               </div>
 
-              <span className={`text-xs px-2 py-1 rounded-full ${c.badge}`}>
-                {card.isNowServing
+              <div className={`text-xs px-2 py-1 rounded-full ${c.badge} ${loading ? 'bg-slate-300' : ''}`}>
+                {loading ? "..." : (card.isNowServing
                   ? stats.current_token > 0
                     ? "ACTIVE"
                     : "STANDBY"
                   : card.color === "blue"
                     ? "+Today"
-                    : "OPTIMAL"}
-              </span>
+                    : "OPTIMAL")}
+              </div>
             </div>
 
             {/* MAIN */}
@@ -121,56 +126,68 @@ const QueueStats = ({ clinicId, doctorId, refreshTrigger, onAction }) => {
                 {card.label}
               </p>
 
-              <h2 className={`text-3xl font-bold ${c.text}`}>
-                {loading ? "--" : card.value}
-              </h2>
+              {loading ? (
+                <div className="h-10 bg-black/5 rounded-lg w-20 mt-1" />
+              ) : (
+                <h2 className={`text-3xl font-bold ${c.text}`}>
+                  {card.value}
+                </h2>
+              )}
             </div>
 
-            {/* FOOTER (KEY FIX) */}
+            {/* FOOTER */}
             <div className="text-xs space-y-1">
-
-              {/* NOW SERVING */}
-              {card.isNowServing ? (
-                stats.current_token > 0 ? (
-                  <>
-                    <p className="font-semibold truncate">
-                      {stats.current_patient_name}
-                    </p>
-                    <p className="truncate opacity-70">
-                      {stats.current_patient_phone}
-                    </p>
-
-                    <button
-                      onClick={handleCompleteVisit}
-                      disabled={actionLoading}
-                      className="mt-1 w-full py-1 rounded-md bg-white/60 flex items-center justify-center gap-1"
-                    >
-                      <CheckCircle2 size={12} />
-                      {actionLoading ? "..." : "Complete"}
-                    </button>
-                  </>
-                ) : (
-                  <p className="opacity-70 italic">
-                    No patient assigned
-                  </p>
-                )
-              ) : null}
-
-              {/* WAITING LIST */}
-              {!card.isNowServing && card.label === "Waiting List" && (
+              {loading ? (
+                <div className="space-y-1.5 pt-1">
+                  <div className="h-3 bg-black/5 rounded w-full" />
+                  <div className="h-3 bg-black/5 rounded w-2/3" />
+                </div>
+              ) : (
                 <>
-                  <p className="opacity-70">Queue is active</p>
-                  <p className="font-semibold">
-                    Next: #{stats.current_token + 1 || "--"}
-                  </p>
-                </>
-              )}
+                  {/* NOW SERVING */}
+                  {card.isNowServing ? (
+                    stats.current_token > 0 ? (
+                      <>
+                        <p className="font-semibold truncate">
+                          {stats.current_patient_name}
+                        </p>
+                        <p className="truncate opacity-70">
+                          {stats.current_patient_phone}
+                        </p>
 
-              {/* AVG WAIT */}
-              {!card.isNowServing && card.label === "Avg. Wait Time" && (
-                <>
-                  <p className="opacity-70">Per consultation</p>
-                  <p className="font-semibold">Live updated</p>
+                        <button
+                          onClick={handleCompleteVisit}
+                          disabled={actionLoading}
+                          className="mt-1 w-full py-1 rounded-md bg-white/60 flex items-center justify-center gap-1"
+                        >
+                          <CheckCircle2 size={12} />
+                          {actionLoading ? "..." : "Complete"}
+                        </button>
+                      </>
+                    ) : (
+                      <p className="opacity-70 italic">
+                        No patient assigned
+                      </p>
+                    )
+                  ) : null}
+
+                  {/* WAITING LIST */}
+                  {!card.isNowServing && card.label === "Waiting List" && (
+                    <>
+                      <p className="opacity-70">Queue is active</p>
+                      <p className="font-semibold">
+                        Next: #{stats.current_token + 1 || "--"}
+                      </p>
+                    </>
+                  )}
+
+                  {/* AVG WAIT */}
+                  {!card.isNowServing && card.label === "Avg. Wait Time" && (
+                    <>
+                      <p className="opacity-70">Per consultation</p>
+                      <p className="font-semibold">Live updated</p>
+                    </>
+                  )}
                 </>
               )}
             </div>

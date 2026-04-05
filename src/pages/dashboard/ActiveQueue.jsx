@@ -78,7 +78,7 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
      try {
        const tokenId = token.id || token.token_id;
        setActionLoading({ action: 'cancel', tokenId });
-       
+
        await API.delete(`/tokens/${tokenId}/cancel`);
        toast.success(`Token #${token.token_number} cancelled`);
 
@@ -113,7 +113,7 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
             whileTap={{ scale: 0.98 }}
             onClick={() => handleQueueAction('call-next')}
             disabled={actionLoading?.action === 'call-next' || loading}
-            className="btn-premium btn-primary bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 shadow-[0_8px_20px_rgba(37,99,235,0.25)] rounded-xl py-2.5 px-5"
+            className="btn-premium bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 shadow-md rounded-xl py-2.5 px-5 transition-all"
           >
             {actionLoading?.action === 'call-next' ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -124,21 +124,21 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
           </motion.button>
 
           <motion.button
-            whileHover={{ scale: 1.02, backgroundColor: '#f8fafc' }}
+            whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={onNewPatient}
-            className="btn-premium btn-secondary bg-white border border-slate-200 text-slate-700 flex items-center gap-2 rounded-xl py-2.5 px-5"
+            className="btn-premium bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-2 rounded-xl py-2.5 px-5 transition-all"
           >
-            <UserPlus size={18} className="text-blue-600" />
+            <UserPlus size={18} className="text-slate-600" />
             Add Patient
           </motion.button>
         </div>
       </div>
 
       {/* QUEUE CONTENT */}
-      <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] overflow-hidden">
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-[0_4px_20px_rgba(0,0,0,0.03)] overflow-hidden">
         {/* TABLE HEADER */}
-        <div className="grid grid-cols-[1fr_1.5fr_1fr_1.5fr_auto] gap-4 p-5 border-b border-slate-50 bg-[#F4F7FE]">
+        <div className="grid grid-cols-[1fr_1.5fr_1fr_1.5fr_auto] gap-4 p-5 border-b border-slate-200 bg-[#F4F7FE]">
           <div className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-2">Token</div>
           <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Patient</div>
           <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Phone</div>
@@ -151,7 +151,13 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
           {loading ? (
             <div className="space-y-2">
               {[1, 2, 3].map(i => (
-                <div key={i} className="h-16 bg-slate-50 rounded-2xl animate-pulse" />
+                <div key={i} className="grid grid-cols-[1fr_1.5fr_1fr_1.5fr_auto] gap-4 p-4 animate-pulse border-b border-slate-50">
+                  <div className="w-10 h-10 bg-slate-100 rounded-xl" />
+                  <div className="h-4 bg-slate-100 rounded-md w-2/3 self-center" />
+                  <div className="h-4 bg-slate-50 rounded-md w-20 self-center" />
+                  <div className="h-6 bg-slate-50 rounded-full w-16 self-center" />
+                  <div className="w-10" />
+                </div>
               ))}
             </div>
           ) : activeTokens.length > 0 ? (
@@ -164,7 +170,7 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
                     initial={{ opacity: 0, scale: 0.98, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.98, x: -10 }}
-                    className="group flex items-center grid grid-cols-[1fr_1.5fr_1fr_1.5fr_auto] gap-4 p-3 rounded-2xl hover:bg-slate-50 transition-colors"
+                    className="group border-b border-slate-200 last:border-0 flex items-center grid grid-cols-[1fr_1.5fr_1fr_1.5fr_auto] gap-4 p-3 hover:bg-slate-50 transition-colors"
                   >
                     <div className="flex items-center gap-3 pl-2">
                       <div className="w-10 h-10 bg-slate-100 text-slate-700 rounded-xl flex items-center justify-center font-bold">

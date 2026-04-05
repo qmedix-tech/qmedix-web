@@ -6,6 +6,7 @@ import API from '../api/axios';
 import Input from './Input';
 import Button from './Button';
 import DoctorProfileUpload from './DoctorProfileUpload';
+import TimeSelect from './TimeSelect';
 
 const DAYS = [
   { value: 'MONDAY', label: 'Monday' },
@@ -17,6 +18,22 @@ const DAYS = [
   { value: 'SUNDAY', label: 'Sunday' },
 ];
 
+const TIME_OPTIONS = [
+  { value: '09:00', label: '09:00 AM' },
+  { value: '10:00', label: '10:00 AM' },
+  { value: '11:00', label: '11:00 AM' },
+  { value: '12:00', label: '12:00 PM' },
+  { value: '13:00', label: '01:00 PM' },
+  { value: '14:00', label: '02:00 PM' },
+  { value: '15:00', label: '03:00 PM' },
+  { value: '16:00', label: '04:00 PM' },
+  { value: '17:00', label: '05:00 PM' },
+  { value: '18:00', label: '06:00 PM' },
+  { value: '19:00', label: '07:00 PM' },
+  { value: '20:00', label: '08:00 PM' },
+  { value: '21:00', label: '09:00 PM' },
+];
+
 /**
  * EditDoctorModal Component.
  * Dedicated component for updating specialist profiles.
@@ -24,7 +41,8 @@ const DAYS = [
  * Uses PATCH /doctors/{doctor_id} for schema-compliant updates.
  */
 const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, availability }) => {
-  const [loading, setLoading] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -39,11 +57,11 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
     if (isOpen && doctor) {
       // Map backend schedules (with ranges) to local form format (linear rows)
       const mappedSchedules = availability?.weekly_schedule?.map(s => {
-        const range = s.slots?.[0] || {};
+        const firstSlot = s.slots?.[0] || {};
         return {
           day_of_week: s.day,
-          start_time: range.start_time?.substring(0, 5) || '09:00',
-          end_time: range.end_time?.substring(0, 5) || '17:00'
+          start_time: firstSlot.start_time?.substring(0, 5) || '09:00',
+          end_time: firstSlot.end_time?.substring(0, 5) || '17:00'
         };
       }) || [{ day_of_week: 'MONDAY', start_time: '09:00', end_time: '17:00' }];
 
@@ -98,7 +116,7 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
       return;
     }
 
-    setLoading(true);
+    setIsUpdating(true);
     try {
       // ✅ PATCH SCHEMA COMPLIANT PAYLOAD
       const payload = {
@@ -107,15 +125,17 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
         specialty: formData.specialty.trim(),
         description: formData.description?.trim() || null,
         is_active: formData.is_active,
-        schedules: formData.schedules.map(s => ({
-          day_of_week: s.day_of_week,
-          ranges: [
-            {
-              start: s.start_time,
-              end: s.end_time
-            }
-          ]
-        }))
+        availability: {
+          weekly_schedule: formData.schedules.map(s => ({
+            day: s.day_of_week,
+            slots: [
+              {
+                start_time: s.start_time,
+                end_time: s.end_time
+              }
+            ]
+          }))
+        }
       };
 
       await API.patch(`/doctors/${doctor.id}`, payload);
@@ -131,14 +151,14 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
       const errorMessage = error.response?.data?.errorMessage || error.response?.data?.message || 'Failed to update specialist profile.';
       toast.error(errorMessage);
     } finally {
-      setLoading(false);
+      setIsUpdating(false);
     }
   };
 
   const handleDeleteDoctor = async () => {
     if (!doctor.id || !window.confirm('WARNING: Are you sure you want to permanently delete this specialist record? This action cannot be undone.')) return;
 
-    setLoading(true);
+    setIsDeleting(true);
     try {
       await API.delete(`/doctors/${doctor.id}`);
 
@@ -158,7 +178,7 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
       const errorMessage = error.response?.data?.errorMessage || error.response?.data?.message || 'Failed to delete specialist.';
       toast.error(errorMessage);
     } finally {
-      setLoading(false);
+      setIsDeleting(false);
     }
   };
 
@@ -285,16 +305,21 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
 
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Operational Status</label>
-                  <div className="relative group/input">
-                    <select
-                      name="is_active"
-                      value={formData.is_active.toString()}
-                      onChange={handleInputChange}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer"
-                    >
-                      <option value="true">Active & Available</option>
-                      <option value="false">Inactive / Offline</option>
-                    </select>
+                  <div
+                    onClick={() => setFormData(prev => ({ ...prev, is_active: !prev.is_active }))}
+                    className="group/toggle flex items-center justify-between w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 cursor-pointer hover:border-blue-200 transition-all shadow-sm active:scale-[0.98] transition-transform"
+                  >
+                    <span className={`text-sm font-bold transition-colors ${formData.is_active ? 'text-emerald-600' : 'text-slate-500'}`}>
+                      {formData.is_active ? 'Active & Available' : 'Currently Offline'}
+                    </span>
+                    <div className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${formData.is_active ? 'bg-emerald-500' : 'bg-slate-300'}`}>
+                      <motion.div
+                        initial={false}
+                        animate={{ x: formData.is_active ? 24 : 0 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        className="w-4 h-4 bg-white rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.1)]"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -313,13 +338,13 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
               </div>
 
               {/* SCHEDULE SECTION */}
-              <div className="pt-6">
+              <div className="pt-0">
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 shadow-inner">
                       <CalendarDays size={20} />
                     </div>
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mt-0.5">Duty Rotation</h3>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mt-0.5">Schedule</h3>
                   </div>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
@@ -333,19 +358,19 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
                   </motion.button>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-4 max-h-[220px] overflow-y-auto custom-scrollbar pr-2 pb-2">
                   <AnimatePresence mode="popLayout">
                     {formData.schedules.map((row, idx) => (
                       <motion.div
                         layout
-                        initial={{ opacity: 0, x: -10 }}
+                        initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         key={idx}
-                        className="flex flex-col sm:flex-row items-end gap-4 p-6 bg-slate-50/50 border border-slate-100 rounded-[32px] relative group hover:bg-white hover:shadow-md transition-all duration-300"
+                        className="flex flex-col sm:flex-row items-end gap-6 p-6 bg-slate-50/50 border border-slate-100 rounded-[32px] relative group hover:bg-white hover:shadow-md transition-all duration-300"
                       >
                         <div className="w-full sm:flex-1">
-                          <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block ml-1">Week Day</label>
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block ml-1">Availability Day</label>
                           <select
                             value={row.day_of_week}
                             onChange={(e) => handleScheduleChange(idx, 'day_of_week', e.target.value)}
@@ -358,27 +383,23 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
                         </div>
 
                         <div className="w-full sm:w-32">
-                          <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block ml-1">Start</label>
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block ml-1">Start Time</label>
                           <div className="relative">
-                            <Clock size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
-                            <input
-                              type="time"
+                            <TimeSelect
                               value={row.start_time}
-                              onChange={(e) => handleScheduleChange(idx, 'start_time', e.target.value)}
-                              className="w-full bg-white border border-slate-100 rounded-xl pl-9 pr-3 py-2.5 text-xs font-black text-slate-700 focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 shadow-sm"
+                              onChange={(val) => handleScheduleChange(idx, 'start_time', val)}
+                              options={TIME_OPTIONS}
                             />
                           </div>
                         </div>
 
                         <div className="w-full sm:w-32">
-                          <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block ml-1">End</label>
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block ml-1">End Time</label>
                           <div className="relative">
-                            <Clock size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
-                            <input
-                              type="time"
+                            <TimeSelect
                               value={row.end_time}
-                              onChange={(e) => handleScheduleChange(idx, 'end_time', e.target.value)}
-                              className="w-full bg-white border border-slate-100 rounded-xl pl-9 pr-3 py-2.5 text-xs font-black text-slate-700 focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 shadow-sm"
+                              onChange={(val) => handleScheduleChange(idx, 'end_time', val)}
+                              options={TIME_OPTIONS}
                             />
                           </div>
                         </div>
@@ -389,9 +410,9 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
                             whileTap={{ scale: 0.9 }}
                             type="button"
                             onClick={() => removeScheduleRow(idx)}
-                            className="p-2.5 text-rose-400 bg-white rounded-xl shadow-sm border border-slate-100"
+                            className="p-2.5 text-rose-400 hover:text-rose-600 bg-white rounded-xl transition-all shadow-sm border border-slate-100 mb-0"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={18} />
                           </motion.button>
                         )}
                       </motion.div>
@@ -416,7 +437,8 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
               variant="outline"
               className="flex-1 min-w-[140px] py-4 border-slate-200 text-rose-500 hover:bg-rose-50 hover:border-rose-100 font-bold flex items-center justify-center gap-2"
               onClick={handleDeleteDoctor}
-              loading={loading}
+              loading={isDeleting}
+              disabled={isUpdating}
               icon={Trash2}
             >
               Delete Specialist
@@ -427,12 +449,14 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
                 variant="outline"
                 className="flex-1 py-4 border-slate-200 text-slate-500 font-bold"
                 onClick={onClose}
+                disabled={isUpdating || isDeleting}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                loading={loading}
+                loading={isUpdating}
+                disabled={isDeleting}
                 className="flex-[2] py-4 shadow-2xl shadow-blue-200"
                 icon={Save}
                 onClick={handleSubmit}

@@ -102,8 +102,7 @@ const SpecialistSelect = ({ doctors, selectedId, onSelect }) => {
                           <Stethoscope size={18} className="text-slate-300 group-hover:text-blue-500 transition-colors" />
                         )}
                       </div>
-                      <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white shadow-sm ${doc.is_active ? 'bg-emerald-500' : 'bg-slate-300'}`} />
-                    </div>
+                      </div>
 
                     <div className="flex-1 text-left min-w-0">
                       <p className={`text-xs font-black truncate ${selectedId === doc.doctor_id ? 'text-blue-600' : 'text-slate-700'}`}>

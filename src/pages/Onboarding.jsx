@@ -27,7 +27,6 @@ const Onboarding = () => {
     state: '',
     address: '',
     avg_service_minutes: '15',
-    is_open: true,
   });
 
   const [errors, setErrors] = useState({});
@@ -37,11 +36,6 @@ const Onboarding = () => {
     const { name, value } = e.target;
 
     if ((name === 'zipcode' || name === 'phone') && value !== '' && !/^\d+$/.test(value)) {
-      return;
-    }
-
-    if (name === 'is_open') {
-      setFormData((prev) => ({ ...prev, [name]: value === 'true' }));
       return;
     }
 
@@ -113,21 +107,18 @@ const Onboarding = () => {
         state: formData.state,
         zipcode: formData.zipcode,
         avg_service_minutes: parseInt(formData.avg_service_minutes),
-        is_open: formData.is_open,
       };
 
       const { data } = await API.post('/clinics/register', payload);
 
       const clinicId = data.clinic_id;
       const clinicName = data.name;
-      const clinicStatus = data.is_open;
 
       const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
       const updatedUser = {
         ...storedUser,
         clinic_id: clinicId,
-        clinicName: clinicName,
-        clinicStatus: clinicStatus
+        clinicName: clinicName
       };
       localStorage.setItem('user', JSON.stringify(updatedUser));
 
@@ -286,7 +277,7 @@ const Onboarding = () => {
                 
                 <div className="lg:col-span-8 space-y-10">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-2">
+                    <div className="space-y-2 md:col-span-2">
                       <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Avg Service Time</label>
                       <select
                         name="avg_service_minutes"
@@ -299,19 +290,6 @@ const Onboarding = () => {
                             {m} Minutes per patient
                           </option>
                         ))}
-                      </select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Initial Status</label>
-                      <select
-                        name="is_open"
-                        value={formData.is_open.toString()}
-                        onChange={handleInputChange}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer transition-all duration-200"
-                      >
-                        <option value="true">Open (Accepting Tokens)</option>
-                        <option value="false">Closed (Setup Only)</option>
                       </select>
                     </div>
                   </div>

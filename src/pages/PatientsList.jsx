@@ -9,6 +9,7 @@ import API from '../api/axios';
 import Button from '../components/Button';
 import Sidebar from '../components/Sidebar';
 import NewPatientModal from '../components/NewPatientModal';
+import PatientDetails from '../components/PatientDetails';
 
 const PatientsList = () => {
   const [patients, setPatients] = useState([]);
@@ -16,6 +17,7 @@ const PatientsList = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
 
   useEffect(() => {
     fetchPatients();
@@ -113,7 +115,7 @@ const PatientsList = () => {
 
         {/* TOOLS / FILTERS */}
         <div className="px-8 py-6 bg-white/40 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4">
-          
+
           <div className="flex items-center gap-4 w-full md:w-auto">
             {/* SEARCH */}
             <div className="relative group flex-1 md:w-80 lg:w-96">
@@ -128,7 +130,7 @@ const PatientsList = () => {
                 className="w-full bg-white border border-slate-200 rounded-2xl pl-11 pr-4 py-3 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all duration-200 shadow-sm"
               />
               {searchQuery && (
-                <button 
+                <button
                   onClick={() => setSearchQuery('')}
                   className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-300 hover:text-slate-500 transition-colors"
                 >
@@ -156,45 +158,72 @@ const PatientsList = () => {
                 {filteredPatients.length} Records Found
              </div>
              {(searchQuery || dateFilter) && (
-               <button 
+              <button
                 onClick={() => { setSearchQuery(''); setDateFilter(''); }}
-                className="text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors"
-               >
-                 Clear Filters
-               </button>
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 transition-all duration-200 border border-transparent hover:border-rose-100"
+              >
+                <X size={14} />
+                Clear Filters
+              </button>
              )}
           </div>
         </div>
 
         {/* CONTENT */}
         <div className="flex-1 p-8 overflow-y-auto custom-scrollbar">
-          <div className="max-w-[1400px] mx-auto">
-            {/* TABLE VIEW */}
-            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
-              {/* HEADER */}
-              <div className="grid grid-cols-5 px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 bg-slate-50/50">
-                <span className="col-span-2">Patient</span>
-                <span>Contact</span>
-                <span>Registered</span>
-                <span>Status</span>
-              </div>
+          <div className="max-w-[1400px] mx-auto w-full">
+            {selectedPatient ? (
+              <PatientDetails patient={selectedPatient} onBack={() => setSelectedPatient(null)} />
+            ) : (
+              /* TABLE VIEW */
+              <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                {/* HEADER */}
+                <div className="grid grid-cols-5 px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200 bg-slate-50/50">
+                  <span className="col-span-2">Patient</span>
+                  <span>Contact</span>
+                  <span>Registered</span>
+                  {/* <span>Status</span> */}
+                </div>
 
               {/* BODY */}
-              <div className="divide-y divide-slate-50 relative min-h-[200px]">
+              <div className="relative">
                 {loading && (
-                  <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center">
-                     <Loader2 className="animate-spin text-blue-500" size={32} />
+                  <div className="divide-y divide-slate-50">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div key={i} className="grid grid-cols-5 px-8 py-5 items-center animate-pulse">
+                        <div className="col-span-2 flex items-center gap-4">
+                          <div className="w-10 h-10 bg-slate-100 rounded-xl" />
+                          <div className="h-4 bg-slate-100 rounded-md w-32" />
+                        </div>
+                        <div className="h-4 bg-slate-50 rounded-md w-24" />
+                        <div className="h-4 bg-slate-50 rounded-md w-28" />
+                        <div className="h-8 bg-slate-50 rounded-lg w-20" />
+                      </div>
+                    ))}
                   </div>
                 )}
-                
-                {filteredPatients.map((patient) => (
-                  <div
+
+                {!loading && filteredPatients.map((patient) => (
+                  <motion.div
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
                     key={patient.id || patient.patient_id || Math.random()}
-                    className="grid grid-cols-5 px-8 py-5 items-center hover:bg-slate-50/80 cursor-pointer transition-colors group"
+                    onClick={() => setSelectedPatient(patient)}
+                    className="grid grid-cols-5 px-8 py-5 items-center hover:bg-slate-50/80 cursor-pointer transition-colors group border-b border-slate-200 last:border-0"
                   >
                     <div className="col-span-2 flex items-center gap-4">
-                      <div className="w-10 h-10 flex-shrink-0 rounded-xl flex items-center justify-center text-[#1E293B] font-bold text-base bg-white border border-slate-100 shadow-sm group-hover:bg-[#1E293B] group-hover:text-white transition-all">
-                        { (patient.patient_name || patient.name || 'P')[0]?.toUpperCase() }
+                      <div className="w-10 h-10 flex-shrink-0 rounded-xl overflow-hidden flex items-center justify-center bg-white border border-slate-100 shadow-sm group-hover:bg-[#1E293B] transition-all">
+                        {patient.dp_url ? (
+                          <img
+                            src={patient.dp_url}
+                            alt="Patient"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-[#1E293B] font-bold text-base group-hover:text-white">
+                            {(patient.patient_name || patient.name || 'P')[0]?.toUpperCase()}
+                          </span>
+                        )}
                       </div>
                       <div className="min-w-0 pr-4">
                          <p className="font-bold text-slate-900 truncate">{patient.patient_name || patient.name || 'Anonymous'}</p>
@@ -202,7 +231,7 @@ const PatientsList = () => {
                     </div>
 
                     <span className="text-sm font-semibold text-slate-600 font-mono tracking-tight">{patient.patient_phone || patient.phone || 'N/A'}</span>
-                    
+
                     <span className="text-sm font-medium text-slate-500">
                       {patient.created_at
                          ? new Date(patient.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -215,22 +244,29 @@ const PatientsList = () => {
                            Token #{patient.token_number}
                          </span>
                       ) : (
-                         <span className="px-3 py-1 bg-slate-50 text-slate-400 border border-slate-100 text-[10px] font-bold uppercase tracking-wider rounded-lg inline-block">
-                           No Token
-                         </span>
+                         <button
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             setSelectedPatient(patient);
+                           }}
+                           className="px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-colors shadow-sm inline-flex items-center gap-1.5"
+                         >
+                           View Details
+                         </button>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-                
+
                 {filteredPatients.length === 0 && !loading && (
-                  <div className="py-16 flex flex-col items-center justify-center text-slate-400">
+                  <div className="flex-1 flex flex-col items-center justify-center text-slate-400 min-h-[400px] py-16">
                     <Inbox size={48} className="mb-4 opacity-20" />
                     <p className="text-sm font-medium">No patients found</p>
                   </div>
                 )}
               </div>
             </div>
+            )}
 
           </div>
         </div>

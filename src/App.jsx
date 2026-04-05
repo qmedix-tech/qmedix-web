@@ -11,6 +11,7 @@ import ClinicProfile from './pages/ClinicProfile';
 import QRCodeGenerator from './pages/QRCodeGenerator';
 import TodayAnalytics from './pages/TodayAnalytics';
 import Doctors from './pages/Doctors';
+import UpcomingBookings from './pages/UpcomingBookings';
 import ProtectedRoute from './routes/ProtectedRoute';
 
 
@@ -28,6 +29,7 @@ const App = () => {
           <Route path="/dashboard/qrcode" element={<QRCodeGenerator />} />
           <Route path="/dashboard/analytics" element={<TodayAnalytics />} />
           <Route path="/dashboard/doctors" element={<Doctors />} />
+          <Route path="/dashboard/upcoming" element={<UpcomingBookings />} />
         </Route>
       </Routes>
       <ToastContainer

@@ -3,10 +3,11 @@ import { motion } from 'framer-motion';
 import {
   Stethoscope, Clock, Pencil, Trash2, CalendarDays, Loader2, XCircle, ArrowLeft, PackageOpen
 } from 'lucide-react';
+import { toast } from 'react-toastify';
 import API from '../api/axios';
 import EditDoctorModal from './EditDoctorModal';
 
-const DoctorDetails = ({ doctorId = null, onDeleteSuccess }) => {
+const DoctorDetails = ({ doctorId = null, onDeleteSuccess, onUpdateSuccess }) => {
   const [loading, setLoading] = useState(true);
   const [doctorInfo, setDoctorInfo] = useState(null);
   const [availability, setAvailability] = useState(null);
@@ -26,19 +27,25 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess }) => {
       setAvailability(detailData.availability);
       setError(null);
     } catch (err) {
-      setError('Error loading specialist');
+      setError('Error loading doctor');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleUpdateSuccess = () => {
+    fetchData(); // Refresh current detail view
+    if (onUpdateSuccess) onUpdateSuccess(); // Notify parent to refresh list
+  };
+
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to deactivate and delete this specialist?")) return;
+    if (!window.confirm("Are you sure you want to deactivate and delete this doctor?")) return;
     try {
       await API.delete(`/doctors/${doctorInfo.id}`);
+      toast.success('Doctor deleted successfully');
       onDeleteSuccess();
     } catch (err) {
-      alert("Failed to delete specialist.");
+      toast.error("Failed to delete doctor.");
     }
   };
 
@@ -54,7 +61,7 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess }) => {
   if (error || !doctorInfo) {
     return (
       <div className="p-6 bg-white border border-rose-100 rounded-2xl text-rose-500 flex items-center gap-2 shadow-sm min-h-[400px]">
-        <XCircle /> {error || 'Specialist not found'}
+        <XCircle /> {error || 'Doctor not found'}
       </div>
     );
   }
@@ -65,9 +72,9 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess }) => {
         {/* LEFT CARD */}
         <div className="w-full md:w-[340px] bg-white rounded-xl shadow-sm p-8 flex flex-col shrink-0 border border-slate-100">
           <div className="flex justify-between items-start mb-6">
-            <span className={`px-4 py-1.5 text-[11px] font-bold tracking-widest uppercase rounded ${doctorInfo.status === 'ACTIVE' ? 'bg-[#34A853] text-white' : 'bg-[#EA4335] text-white'}`}>
+            {/* <span className={`px-4 py-1.5 text-[11px] font-bold tracking-widest uppercase rounded ${doctorInfo.status === 'ACTIVE' ? 'bg-[#34A853] text-white' : 'bg-[#EA4335] text-white'}`}>
                {doctorInfo.status || 'Offline'}
-            </span>
+            </span> */}
           </div>
 
           <div className="flex flex-col items-center text-center">
@@ -95,7 +102,7 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess }) => {
 
           <div className="mt-12 flex items-center justify-between gap-4">
              <button onClick={handleDelete} className="flex-1 py-3.5 bg-[#EAF7ED] text-[#D43425] font-bold text-xs rounded shadow-sm hover:bg-green-100 transition-colors tracking-wide">
-               Deactivate
+               Delete
              </button>
              <button onClick={() => setIsEditModalOpen(true)} className="flex-1 py-3.5 bg-[#222E3C] text-white font-bold text-xs rounded shadow-sm flex items-center justify-center gap-2 hover:bg-slate-900 transition-colors tracking-wide">
                <Pencil size={14} /> Edit Profile
@@ -160,7 +167,7 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess }) => {
         onClose={() => setIsEditModalOpen(false)}
         doctor={doctorInfo}
         availability={availability}
-        onSuccess={fetchData}
+        onSuccess={handleUpdateSuccess}
         onDeleteSuccess={onDeleteSuccess}
       />
     </>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Building2, Save, MapPin, Phone, Clock,
   CheckCircle2, Loader2, Sparkles, ChevronRight,
-  ShieldCheck, Globe, Hash, Info, User
+  ShieldCheck, Globe, Hash, Info, User, ChevronDown
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
@@ -26,7 +26,6 @@ const ClinicProfile = () => {
     state: '',
     address: '',
     avg_service_minutes: '15',
-    is_open: true,
   });
 
   useEffect(() => {
@@ -54,7 +53,6 @@ const ClinicProfile = () => {
           state: clinic.state || '',
           address: clinic.address || '',
           avg_service_minutes: String(clinic.avg_service_minutes || '15'),
-          is_open: clinic.is_open ?? true,
         });
       }
     } catch (error) {
@@ -72,10 +70,6 @@ const ClinicProfile = () => {
       return;
     }
 
-    if (name === 'is_open') {
-      setFormData((prev) => ({ ...prev, [name]: value === 'true' }));
-      return;
-    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -118,9 +112,8 @@ const ClinicProfile = () => {
         state: formData.state,
         zipcode: formData.zipcode,
         avg_service_minutes: parseInt(formData.avg_service_minutes),
-        is_open: formData.is_open,
       };
-      await API.put(`/clinics/${clinicId}`, payload);
+      await API.patch(`/clinics/${clinicId}`, payload);
       toast.success('Clinic profile updated successfully!', {
         icon: <CheckCircle2 className="text-emerald-500" />
       });
@@ -148,11 +141,40 @@ const ClinicProfile = () => {
     return (
       <div className="min-h-screen bg-[#F4F7FE] flex">
         <Sidebar />
-        <main className="flex-1 flex flex-col items-center justify-center">
-            <div className="flex flex-col items-center gap-4">
-              <Loader2 className="animate-spin text-blue-600" size={40} />
-              <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-[10px]">Loading Workspace Profile...</p>
+        <main className="flex-1 flex flex-col h-screen overflow-hidden">
+          <header className="h-20 bg-white border-b border-slate-100 px-8 flex items-center justify-between">
+            <div className="space-y-2">
+              <div className="h-5 bg-slate-200 rounded-md w-32 animate-pulse" />
+              <div className="h-3 bg-slate-100 rounded-md w-48 animate-pulse" />
             </div>
+          </header>
+          <div className="flex-1 p-8 overflow-y-auto">
+            <div className="max-w-[1000px] mx-auto bg-white rounded-[40px] p-12 space-y-12 animate-pulse border border-slate-100">
+              <div className="grid grid-cols-12 gap-12 border-b border-slate-50 pb-12">
+                <div className="col-span-4 space-y-3">
+                  <div className="h-8 bg-slate-100 rounded-xl w-32" />
+                  <div className="h-12 bg-slate-50 rounded-lg w-full" />
+                </div>
+                <div className="col-span-8 space-y-6">
+                  <div className="h-16 bg-slate-50 rounded-2xl w-full" />
+                  <div className="h-16 bg-slate-50 rounded-2xl w-full" />
+                </div>
+              </div>
+              <div className="grid grid-cols-12 gap-12">
+                <div className="col-span-4 space-y-3">
+                  <div className="h-8 bg-slate-100 rounded-xl w-32" />
+                  <div className="h-12 bg-slate-50 rounded-lg w-full" />
+                </div>
+                <div className="col-span-8 space-y-6">
+                  <div className="h-32 bg-slate-50 rounded-2xl w-full" />
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="h-16 bg-slate-50 rounded-2xl w-full" />
+                    <div className="h-16 bg-slate-50 rounded-2xl w-full" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </main>
       </div>
     );
@@ -185,16 +207,16 @@ const ClinicProfile = () => {
         {/* CONTENT */}
         <div className="flex-1 p-8 overflow-y-auto custom-scrollbar">
           <div className="max-w-[1000px] mx-auto">
-            
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="bg-white border border-slate-100 rounded-[40px] shadow-2xl shadow-slate-200/50 overflow-hidden"
             >
               <div className="h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
-              
+
               <form onSubmit={handleSubmit} className="p-8 md:p-12 space-y-12">
-                
+
                 {/* SECTION: BASIC INFO */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-12 border-b border-slate-50">
                   <div className="lg:col-span-4">
@@ -206,7 +228,7 @@ const ClinicProfile = () => {
                     </div>
                     <p className="text-xs font-medium text-slate-400 leading-relaxed">Name and primary contact information for your clinic.</p>
                   </div>
-                  
+
                   <div className="lg:col-span-8 space-y-6">
                     <div className="space-y-2">
                       <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Clinic Name</label>
@@ -262,7 +284,7 @@ const ClinicProfile = () => {
                     </div>
                     <p className="text-xs font-medium text-slate-400 leading-relaxed">The physical location where patients will check in.</p>
                   </div>
-                  
+
                   <div className="lg:col-span-8 space-y-6">
                     <div className="space-y-2">
                       <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Street Address</label>
@@ -328,36 +350,27 @@ const ClinicProfile = () => {
                     </div>
                     <p className="text-xs font-medium text-slate-400 leading-relaxed">Adjust your queue dynamics and hospital availability.</p>
                   </div>
-                  
+
                   <div className="lg:col-span-8 space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-2">
-                        <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Avg Service Time</label>
-                        <select
-                          name="avg_service_minutes"
-                          value={formData.avg_service_minutes}
-                          onChange={handleInputChange}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer transition-all duration-200"
-                        >
-                          {[5, 10, 15, 20, 30, 45, 60].map(m => (
-                            <option key={m} value={m}>
-                              {m} Minutes per session
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Current Status</label>
-                        <select
-                          name="is_open"
-                          value={formData.is_open?.toString() || "true"}
-                          onChange={handleInputChange}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer transition-all duration-200"
-                        >
-                          <option value="true">Open (Online)</option>
-                          <option value="false">Closed (Offline)</option>
-                        </select>
+                      <div className="space-y-2 md:col-span-2">
+                        <div className="relative">
+                          <select
+                            name="avg_service_minutes"
+                            value={formData.avg_service_minutes}
+                            onChange={handleInputChange}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer transition-all duration-200"
+                          >
+                            {[5, 10, 15, 20, 30, 45, 60].map(m => (
+                              <option key={m} value={m}>
+                                {m} Minutes per session
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none text-slate-400">
+                             <ChevronDown size={18} />
+                          </div>
+                        </div>
                       </div>
                     </div>
 
@@ -373,17 +386,14 @@ const ClinicProfile = () => {
                 {/* ACTION: SAVE */}
                 <div className="pt-8 flex flex-col md:flex-row items-center gap-4">
                   <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="submit"
                     disabled={loading}
-                    className="w-full md:flex-1 py-5 bg-blue-600 text-white rounded-3xl font-black text-xl shadow-2xl shadow-blue-200 hover:bg-blue-700 transition-all flex items-center justify-center gap-3"
+                    className="w-full md:flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-xl shadow-blue-100 hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
                   >
                     {loading ? (
-                      <Loader2 size={24} className="animate-spin" />
+                      <Loader2 size={20} className="animate-spin" />
                     ) : (
                       <>
-                        <Save size={20} />
+                        <Save size={18} />
                         Update Workspace Profile
                       </>
                     )}
@@ -392,7 +402,7 @@ const ClinicProfile = () => {
                     whileHover={{ backgroundColor: '#f8fafc' }}
                     type="button"
                     onClick={() => navigate('/dashboard')}
-                    className="w-full md:w-auto px-8 py-5 border border-slate-200 text-slate-600 rounded-3xl font-bold text-lg transition-all"
+                    className="w-full md:w-auto px-8 py-3.5 border border-slate-200 text-slate-600 rounded-2xl font-bold text-sm transition-all"
                   >
                     Cancel
                   </motion.button>

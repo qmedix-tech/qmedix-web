@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import API from '../api/axios';
 import Input from './Input';
 import Button from './Button';
+import TimeSelect from './TimeSelect';
 
 const DAYS = [
   { value: 'MONDAY', label: 'Monday' },
@@ -14,6 +15,22 @@ const DAYS = [
   { value: 'FRIDAY', label: 'Friday' },
   { value: 'SATURDAY', label: 'Saturday' },
   { value: 'SUNDAY', label: 'Sunday' },
+];
+
+const TIME_OPTIONS = [
+  { value: '09:00', label: '9:00 AM' },
+  { value: '10:00', label: '10:00 AM' },
+  { value: '11:00', label: '11:00 AM' },
+  { value: '12:00', label: '12:00 PM' },
+  { value: '13:00', label: '1:00 PM' },
+  { value: '14:00', label: '2:00 PM' },
+  { value: '15:00', label: '3:00 PM' },
+  { value: '16:00', label: '4:00 PM' },
+  { value: '17:00', label: '5:00 PM' },
+  { value: '18:00', label: '6:00 PM' },
+  { value: '19:00', label: '7:00 PM' },
+  { value: '20:00', label: '8:00 PM' },
+  { value: '21:00', label: '9:00 PM' },
 ];
 
 const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
@@ -87,22 +104,24 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
         return;
       }
 
-      // ✅ FIXED PAYLOAD (SCHEMA COMPLIANT)
+      // ✅ FIXED PAYLOAD (NEW NESTED SCHEMA)
       const payload = {
         name: formData.name.trim(),
         phone: formData.phone.trim(),
         specialty: formData.specialty.trim(),
         description: formData.description?.trim() || null,
         is_active: formData.is_active,
-        schedules: formData.schedules.map(s => ({
-          day_of_week: s.day_of_week,
-          ranges: [
-            {
-              start: s.start_time,
-              end: s.end_time
-            }
-          ]
-        }))
+        availability: {
+          weekly_schedule: formData.schedules.map(s => ({
+            day: s.day_of_week,
+            slots: [
+              {
+                start_time: s.start_time,
+                end_time: s.end_time
+              }
+            ]
+          }))
+        }
       };
 
       await API.post(`/doctors/${clinicId}`, payload);
@@ -246,20 +265,24 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Status</label>
-                <div className="relative group/input">
-                   <select
-                    name="is_active"
-                    value={formData.is_active.toString()}
-                    onChange={handleInputChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer hover:border-slate-300 transition-all duration-200"
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Operational Status</label>
+                  <div
+                    onClick={() => setFormData(prev => ({ ...prev, is_active: !prev.is_active }))}
+                    className="group/toggle flex items-center justify-between w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 cursor-pointer hover:border-blue-200 transition-all"
                   >
-                    <option value="true">Active & Ready</option>
-                    <option value="false">Currently Inactive</option>
-                  </select>
+                    <span className={`text-sm font-bold transition-colors ${formData.is_active ? 'text-emerald-600' : 'text-slate-500'}`}>
+                      {formData.is_active ? 'Active & Available' : 'Currently Offline'}
+                    </span>
+                    <div className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${formData.is_active ? 'bg-emerald-500' : 'bg-slate-300'}`}>
+                      <motion.div
+                        initial={false}
+                        animate={{ x: formData.is_active ? 24 : 0 }}
+                        className="w-4 h-4 bg-white rounded-full shadow-sm"
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
             </div>
 
             <div className="space-y-1.5">
@@ -270,12 +293,12 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
                 onChange={handleInputChange}
                 rows={3}
                 placeholder="Mention qualifications, expertise, and focus areas..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 hover:border-slate-300 transition-all duration-200 resize-none font-medium italic"
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 hover:border-slate-300 transition-all duration-200 resize-none font-medium "
               />
             </div>
 
             {/* SECTION: SCHEDULES */}
-            <div className="pt-6">
+            <div className="pt-0">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                    <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 shadow-inner">
@@ -295,7 +318,7 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
                 </motion.button>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4 max-h-[220px] overflow-y-auto custom-scrollbar pr-2 pb-2">
                 <AnimatePresence mode="popLayout">
                   {formData.schedules.map((row, idx) => (
                     <motion.div
@@ -304,7 +327,7 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       key={idx}
-                      className="flex flex-col sm:flex-row items-end gap-4 p-5 bg-slate-50 border border-slate-100 rounded-3xl relative group"
+                      className="flex flex-col sm:flex-row items-end gap-6 p-6 bg-slate-50/50 border border-slate-100 rounded-[32px] relative group hover:bg-white hover:shadow-md transition-all duration-300"
                     >
                       <div className="w-full sm:flex-1">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block ml-1">Availability Day</label>
@@ -322,12 +345,10 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
                       <div className="w-full sm:w-32">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block ml-1">Start Time</label>
                         <div className="relative">
-                           <Clock size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
-                           <input
-                            type="time"
+                          <TimeSelect
                             value={row.start_time}
-                            onChange={(e) => handleScheduleChange(idx, 'start_time', e.target.value)}
-                            className="w-full bg-white border border-slate-100 rounded-xl pl-9 pr-3 py-2.5 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 shadow-sm cursor-pointer"
+                            onChange={(val) => handleScheduleChange(idx, 'start_time', val)}
+                            options={TIME_OPTIONS}
                           />
                         </div>
                       </div>
@@ -335,12 +356,10 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
                       <div className="w-full sm:w-32">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block ml-1">End Time</label>
                         <div className="relative">
-                           <Clock size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
-                           <input
-                            type="time"
+                          <TimeSelect
                             value={row.end_time}
-                            onChange={(e) => handleScheduleChange(idx, 'end_time', e.target.value)}
-                            className="w-full bg-white border border-slate-100 rounded-xl pl-9 pr-3 py-2.5 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 shadow-sm cursor-pointer"
+                            onChange={(val) => handleScheduleChange(idx, 'end_time', val)}
+                            options={TIME_OPTIONS}
                           />
                         </div>
                       </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  LayoutDashboard, Users2, Building2, LogOut, QrCode, BarChart3, Stethoscope, ChevronRight
+  LayoutDashboard, Users2, Building2, LogOut, QrCode, BarChart3, Stethoscope, ChevronRight, CalendarClock
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -19,6 +19,7 @@ const Sidebar = () => {
     { icon: BarChart3, label: 'Analytics', path: '/dashboard/analytics' },
     { icon: Stethoscope, label: 'Doctors', path: '/dashboard/doctors' },
     { icon: Users2, label: 'Patients', path: '/dashboard/patientlist' },
+    { icon: CalendarClock, label: 'Upcoming', path: '/dashboard/upcoming' },
     { icon: Building2, label: 'Clinic', path: '/dashboard/clinic' },
     { icon: QrCode, label: 'QR Code', path: '/dashboard/qrcode' },
   ];
@@ -45,7 +46,7 @@ const Sidebar = () => {
       </div>
 
       {/* NAVIGATION */}
-      <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 px-4 space-y-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <div className="mb-4 px-2">
           <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">Main Menu</span>
         </div>

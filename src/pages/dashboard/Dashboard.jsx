@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Building2, Bell, Power, PowerOff, Sparkles, Layout, Stethoscope
+  Building2, Bell, Sparkles, Layout, Stethoscope
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -14,10 +14,8 @@ import API from '../../api/axios';
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
-  const [clinicStatus, setClinicStatus] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
-  const [isToggling, setIsToggling] = useState(false);
   const [doctors, setDoctors] = useState([]);
   const [selectedDoctorId, setSelectedDoctorId] = useState('');
   const navigate = useNavigate();
@@ -39,11 +37,13 @@ const Dashboard = () => {
      try {
        const { data } = await API.get(`/doctors/${clinicId}`);
        const doctorList = Array.isArray(data) ? data : (data.doctors || []);
-       setDoctors(doctorList);
+       // ✅ ONLY SHOW ACTIVE DOCTORS ON DASHBOARD
+       const activeDoctors = doctorList.filter(d => d.is_active === true);
+       setDoctors(activeDoctors);
 
        // Default to the first doctor if available
-       if (doctorList.length > 0 && !selectedDoctorId) {
-         setSelectedDoctorId(doctorList[0].doctor_id);
+       if (activeDoctors.length > 0 && !selectedDoctorId) {
+         setSelectedDoctorId(activeDoctors[0].doctor_id);
        }
      } catch (error) {
        console.error('Failed to fetch doctors:', error);
@@ -58,9 +58,6 @@ const Dashboard = () => {
       const { data: clincData } = await API.get(`/clinics/${clinic_id}`);
 
       const clinicName = clincData.name;
-      const is_open = clincData.is_open;
-
-      setClinicStatus(is_open);
 
       const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
       const updatedUser = {
@@ -72,29 +69,6 @@ const Dashboard = () => {
       console.error('Failed to fetch clinic data:', error);
     }
   }
-
-  const handleToggleStatus = async () => {
-    if (!user?.clinic_id || isToggling) return;
-
-    const newStatus = !clinicStatus;
-    setIsToggling(true);
-
-    try {
-      await API.patch(`/clinics/${user.clinic_id}/status`, {
-        is_open: newStatus
-      });
-
-      setClinicStatus(newStatus);
-      toast.success(`Clinic is now ${newStatus ? 'OPEN' : 'CLOSED'}`, {
-        icon: newStatus ? <Power className="text-emerald-500" /> : <PowerOff className="text-rose-500" />
-      });
-    } catch (error) {
-      console.error('Failed to update clinic status:', error);
-      toast.error('Failed to update clinic status');
-    } finally {
-      setIsToggling(false);
-    }
-  };
 
   const handleQueueUpdate = () => {
     setRefreshTrigger(prev => prev + 1);
@@ -115,52 +89,19 @@ const Dashboard = () => {
         <header className="h-24 bg-white/40 backdrop-blur-xl border-b border-white/60 px-8 flex items-center justify-between sticky top-0 z-20">
           <div>
             <div className="flex items-center gap-2 mb-0.5">
-              <Layout size={16} className="text-blue-600" />
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">Overview</h1>
+              <Sparkles size={16} className="text-blue-600" />
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+                {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
+              </h1>
             </div>
-            <p className="text-sm font-medium text-slate-500">Welcome back, {user?.clinicName || "Clinic"}</p>
+            <p className="text-sm font-medium text-slate-500">
+              {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </p>
           </div>
 
           <div className="flex items-center gap-6">
 
-            {/* DATE */}
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-100 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.02)] border-slate-200">
-              <Sparkles size={12} className="text-blue-600" />
-              <span className="text-[11px] font-bold text-slate-700">
-                {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
-              </span>
-            </div>
 
-            {/* STATUS TOGGLE */}
-            <div className="flex items-center gap-4 bg-white px-5 py-2.5 rounded-full border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
-              <div className="flex flex-col items-end justify-center h-full">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-none mb-1.5">Status</span>
-                <span className={`text-xs font-black leading-none ${clinicStatus ? 'text-emerald-500' : 'text-rose-500'}`}>
-                  {clinicStatus ? 'OPEN' : 'CLOSED'}
-                </span>
-              </div>
-
-              <button
-                onClick={handleToggleStatus}
-                disabled={isToggling}
-                className={`relative w-[52px] h-7 rounded-full transition-all duration-300 flex items-center px-1 ${
-                  clinicStatus ? 'bg-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.4)]' : 'bg-slate-200'
-                } ${isToggling ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-              >
-                <motion.div
-                  layout
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  className="w-5 h-5 bg-white rounded-full shadow-sm flex items-center justify-center pointer-events-none"
-                  style={{ x: clinicStatus ? 24 : 0 }}
-                >
-                  {isToggling ? (
-                    <div className="w-2 h-2 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    clinicStatus ? <Power size={10} className="text-emerald-600" /> : <PowerOff size={10} className="text-slate-400" />
-                  )}
-                </motion.div>
-              </button>
-            </div>
 
             {/* USER PROFILE */}
             <div className="flex items-center gap-4 pl-8 border-l border-slate-200/60">
