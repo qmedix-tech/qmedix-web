@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Phone, Calendar, Loader2, CheckCircle2, UserPlus, Sparkles, Stethoscope, Clock } from 'lucide-react';
+import { X, User, Phone, Calendar, Loader2, CheckCircle2, UserPlus, Sparkles, Stethoscope, Clock, ChevronDown } from 'lucide-react';
 import { toast } from 'react-toastify';
 import API from '../api/axios';
 import Input from './Input';
@@ -31,13 +31,14 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
 
   useEffect(() => {
     if (formData.doctor_id && isOpen) {
-       fetchDoctorSchedule(formData.doctor_id);
+      fetchDoctorSchedule(formData.doctor_id);
     }
   }, [formData.doctor_id, isOpen]);
 
   const fetchDoctorSchedule = async (doctorId) => {
-    setScheduleLoading(true);
+    if (!doctorId) return;
     try {
+      setScheduleLoading(true);
       const { data } = await API.get(`/doctors/details/${doctorId}`);
       setDoctorSchedule(data.availability?.weekly_schedule || []);
     } catch (e) {
@@ -50,12 +51,12 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
 
   const getDaySlots = () => {
     if (!formData.date || !doctorSchedule.length) return [];
-    
+
     // Convert YYYY-MM-DD safely into a Day string
     const [year, month, day] = formData.date.split('-');
     const dateObj = new Date(year, month - 1, day);
     const dayOfWeek = dateObj.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
-    
+
     const schedule = doctorSchedule.find(s => s.day === dayOfWeek);
     return schedule?.slots || [];
   };
@@ -246,140 +247,134 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
           {/* BODY */}
           <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar p-10 space-y-10">
 
-            <div className="grid md:grid-cols-2 gap-8">
-              <Input
-                label="Patient Name"
-                name="patient_name"
-                value={formData.patient_name}
-                onChange={handleInputChange}
-                placeholder="e.g. John Doe"
-                icon={User}
-                required
-              />
+            <div className="space-y-6">
+              {/* ROW 1: PATIENT NAME */}
+              <div className="w-full">
+                <Input
+                  label="Patient Name"
+                  name="patient_name"
+                  value={formData.patient_name}
+                  onChange={handleInputChange}
+                  placeholder="e.g. John Doe"
+                  icon={User}
+                  required
+                />
+              </div>
 
-              <Input
-                label="Phone Number"
-                name="patient_phone"
-                type="tel"
-                maxLength={10}
-                placeholder="9876543210"
-                value={formData.patient_phone}
-                onChange={handleInputChange}
-                icon={Phone}
-                prefixText="+91"
-                required
-              />
-            </div>
+              {/* ROW 2: CONTACT & SPECIALIST */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <Input
+                  label="Phone Number"
+                  name="patient_phone"
+                  type="tel"
+                  maxLength={10}
+                  placeholder="9876543210"
+                  value={formData.patient_phone}
+                  onChange={handleInputChange}
+                  icon={Phone}
+                  prefixText="+91"
+                  required
+                />
 
-            <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                    Consulting Specialist
+                  </label>
 
-              <Input
-                label="Booking Date"
-                name="date"
-                type="date"
-                value={formData.date}
-                onChange={handleInputChange}
-                icon={Calendar}
-                required
-              />
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
-                  Consulting Specialist
-                </label>
-
-                <div className="relative group/input">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
-                    <Stethoscope size={18} />
-                  </div>
-
-                  <select
-                    name="doctor_id"
-                    value={formData.doctor_id}
-                    onChange={handleInputChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500"
-                    required
-                  >
-                    <option value="" disabled>Select a doctor</option>
-
-                    {doctors.map((doctor) => (
-                      <option key={doctor.doctor_id} value={doctor.doctor_id}>
-                        {doctor.name} ({doctor.specialty})
-                      </option>
-                    ))}
-
-                    {doctors.length === 0 && !doctorsLoading && (
-                      <option disabled>No specialists found</option>
-                    )}
-                  </select>
-
-                  {doctorsLoading && (
-                    <div className="absolute inset-y-0 right-10 flex items-center">
-                      <Loader2 size={14} className="animate-spin text-blue-500" />
+                  <div className="relative group/input">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 pointer-events-none">
+                      <Stethoscope size={18} />
                     </div>
-                  )}
+
+                    <select
+                      name="doctor_id"
+                      value={formData.doctor_id}
+                      onChange={handleInputChange}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-12 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm appearance-none"
+                      required
+                    >
+                      <option value="" disabled>Select a doctor</option>
+                      {doctors.map((doctor) => (
+                        <option key={doctor.doctor_id} value={doctor.doctor_id}>
+                          {doctor.name} ({doctor.specialty})
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none text-slate-400">
+                      <ChevronDown size={18} />
+                    </div>
+                    {doctorsLoading && (
+                      <div className="absolute inset-y-0 right-14 flex items-center">
+                        <Loader2 size={14} className="animate-spin text-blue-500" />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-1.5 md:col-span-2">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
-                  Select Time Slot
-                </label>
+              {/* ROW 3: DATE & TIME */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <Input
+                  label="Booking Date"
+                  name="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={handleInputChange}
+                  icon={Calendar}
+                  required
+                />
 
-                <div className="relative group/input">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
-                    <Clock size={18} />
-                  </div>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                    Select Time Slot
+                  </label>
 
-                  <select
-                    name="time_slot"
-                    value={formData.slot_start ? `${formData.slot_start}-${formData.slot_end}` : ''}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (!val) return;
-                      const [start, end] = val.split('-');
-                      setFormData(prev => ({ ...prev, slot_start: start, slot_end: end }));
-                    }}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500"
-                    required
-                  >
-                    <option value="" disabled>Select available time</option>
-
-                    {availableSlots.map((slot, idx) => {
-                      const start = slot.start_time.substring(0, 5);
-                      const end = slot.end_time.substring(0, 5);
-                      return (
-                         <option key={idx} value={`${start}-${end}`}>
-                           {start} to {end}
-                         </option>
-                      )
-                    })}
-
-                    {availableSlots.length === 0 && !scheduleLoading && (
-                      <option disabled>No valid slots for this date</option>
-                    )}
-                  </select>
-
-                  {scheduleLoading && (
-                    <div className="absolute inset-y-0 right-10 flex items-center">
-                      <Loader2 size={14} className="animate-spin text-blue-500" />
+                  <div className="relative group/input">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 pointer-events-none">
+                      <Clock size={18} />
                     </div>
-                  )}
+
+                    <select
+                      name="time_slot"
+                      value={formData.slot_start ? `${formData.slot_start}-${formData.slot_end}` : ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (!val) return;
+                        const [start, end] = val.split('-');
+                        setFormData(prev => ({ ...prev, slot_start: start, slot_end: end }));
+                      }}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-12 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm appearance-none"
+                      required
+                    >
+                      <option value="" disabled>Select available time</option>
+                      {availableSlots.map((slot, idx) => {
+                        const start = slot.start_time.substring(0, 5);
+                        const end = slot.end_time.substring(0, 5);
+                        return (
+                          <option key={idx} value={`${start}-${end}`}>
+                            {start} to {end}
+                          </option>
+                        )
+                      })}
+                    </select>
+                    <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none text-slate-400">
+                      <ChevronDown size={18} />
+                    </div>
+                    {scheduleLoading && (
+                      <div className="absolute inset-y-0 right-14 flex items-center">
+                        <Loader2 size={14} className="animate-spin text-blue-500" />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="mt-6 flex items-center gap-3 py-4 px-6 bg-blue-50/50 border border-blue-100 rounded-2xl">
-              <Sparkles size={18} className="text-blue-500 shrink-0" />
-              <p className="text-[11px] font-medium text-blue-700 leading-tight">
-                Assigned tokens help specialists prep for patients in advance, reducing consultation time and improving queue flow.
-              </p>
             </div>
 
           </form>
 
+
           {/* FOOTER */}
-          <div className="px-10 py-8 bg-slate-50 border-t border-slate-100 flex gap-4">
+          <div className="px-10 py-8 bg-slate-50 border-t border-slate-100 flex gap-4 mt-9">
             <Button
               type="button"
               variant="outline"
@@ -392,11 +387,11 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
             <Button
               type="submit"
               loading={loading}
-              className="flex-1 py-4 shadow-2xl shadow-blue-200"
+              className="flex-1 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-xl shadow-blue-200 rounded-2xl"
               icon={CheckCircle2}
               onClick={handleSubmit}
             >
-              Complete Registration
+              Add Patient
             </Button>
           </div>
 

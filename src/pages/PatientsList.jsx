@@ -106,7 +106,7 @@ const PatientsList = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setIsPatientModalOpen(true)}
-            className="btn-premium btn-primary flex items-center gap-2 shadow-lg shadow-blue-100"
+            className="btn-premium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center gap-2 shadow-lg shadow-blue-200 px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
           >
             <UserPlus size={18} />
             Register New Patient
@@ -154,10 +154,10 @@ const PatientsList = () => {
           </div>
 
           <div className="flex items-center gap-3">
-             <div className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-100">
-                {filteredPatients.length} Records Found
-             </div>
-             {(searchQuery || dateFilter) && (
+            <div className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-100">
+              {filteredPatients.length} Records Found
+            </div>
+            {(searchQuery || dateFilter) && (
               <button
                 onClick={() => { setSearchQuery(''); setDateFilter(''); }}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 transition-all duration-200 border border-transparent hover:border-rose-100"
@@ -165,7 +165,7 @@ const PatientsList = () => {
                 <X size={14} />
                 Clear Filters
               </button>
-             )}
+            )}
           </div>
         </div>
 
@@ -178,94 +178,89 @@ const PatientsList = () => {
               /* TABLE VIEW */
               <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
                 {/* HEADER */}
-                <div className="grid grid-cols-5 px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200 bg-slate-50/50">
-                  <span className="col-span-2">Patient</span>
+                <div className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr] px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200 bg-slate-50/50">
+                  <span>Patient</span>
                   <span>Contact</span>
                   <span>Registered</span>
-                  {/* <span>Status</span> */}
+                  <span className='pl-10'>Action</span>
                 </div>
 
-              {/* BODY */}
-              <div className="relative">
-                {loading && (
-                  <div className="divide-y divide-slate-50">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <div key={i} className="grid grid-cols-5 px-8 py-5 items-center animate-pulse">
-                        <div className="col-span-2 flex items-center gap-4">
-                          <div className="w-10 h-10 bg-slate-100 rounded-xl" />
-                          <div className="h-4 bg-slate-100 rounded-md w-32" />
+                {/* BODY */}
+                <div className="relative">
+                  {loading && (
+                    <div className="divide-y divide-slate-100">
+                      {[1, 2, 3, 4, 5, 6].map((i) => (
+                        <div key={i} className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr] px-8 py-5 items-center relative overflow-hidden">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl animate-shimmer shrink-0" />
+                            <div className="h-4 w-32 rounded-md animate-shimmer" />
+                          </div>
+                          <div className="h-4 w-24 rounded-md animate-shimmer" />
+                          <div className="h-4 w-28 rounded-md animate-shimmer" />
+                          <div className="pl-6">
+                            <div className="h-8 w-24 rounded-lg animate-shimmer" />
+                          </div>
                         </div>
-                        <div className="h-4 bg-slate-50 rounded-md w-24" />
-                        <div className="h-4 bg-slate-50 rounded-md w-28" />
-                        <div className="h-8 bg-slate-50 rounded-lg w-20" />
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {!loading && filteredPatients.map((patient) => (
-                  <motion.div
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    key={patient.id || patient.patient_id || Math.random()}
-                    onClick={() => setSelectedPatient(patient)}
-                    className="grid grid-cols-5 px-8 py-5 items-center hover:bg-slate-50/80 cursor-pointer transition-colors group border-b border-slate-200 last:border-0"
-                  >
-                    <div className="col-span-2 flex items-center gap-4">
-                      <div className="w-10 h-10 flex-shrink-0 rounded-xl overflow-hidden flex items-center justify-center bg-white border border-slate-100 shadow-sm group-hover:bg-[#1E293B] transition-all">
-                        {patient.dp_url ? (
-                          <img
-                            src={patient.dp_url}
-                            alt="Patient"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-[#1E293B] font-bold text-base group-hover:text-white">
-                            {(patient.patient_name || patient.name || 'P')[0]?.toUpperCase()}
-                          </span>
-                        )}
-                      </div>
-                      <div className="min-w-0 pr-4">
-                         <p className="font-bold text-slate-900 truncate">{patient.patient_name || patient.name || 'Anonymous'}</p>
-                      </div>
+                      ))}
                     </div>
+                  )}
 
-                    <span className="text-sm font-semibold text-slate-600 font-mono tracking-tight">{patient.patient_phone || patient.phone || 'N/A'}</span>
+                  {!loading && filteredPatients.map((patient) => (
+                    <motion.div
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      key={patient.id || patient.patient_id || Math.random()}
+                      className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr] px-8 py-5 items-center hover:bg-slate-50/80 transition-colors group border-b border-slate-200 last:border-0"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 flex-shrink-0 rounded-xl overflow-hidden flex items-center justify-center bg-white border border-slate-100 shadow-sm group-hover:bg-[#1E293B] transition-all">
+                          {patient.dp_url ? (
+                            <img
+                              src={patient.dp_url}
+                              alt="Patient"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-[#1E293B] font-bold text-base group-hover:text-white">
+                              {(patient.patient_name || patient.name || 'P')[0]?.toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                        <div className="min-w-0 pr-4">
+                          <p className="font-bold text-slate-900 truncate">{patient.patient_name || patient.name || 'Anonymous'}</p>
+                        </div>
+                      </div>
 
-                    <span className="text-sm font-medium text-slate-500">
-                      {patient.created_at
-                         ? new Date(patient.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                         : patient.date || "Unknown"}
-                    </span>
+                      <span className="text-sm font-semibold text-slate-600 font-mono tracking-tight">{patient.patient_phone || patient.phone || 'N/A'}</span>
 
-                    <div>
-                      {patient.token_number ? (
-                         <span className="px-3 py-1 bg-indigo-50 text-indigo-600 border border-indigo-100/50 text-[10px] font-bold uppercase tracking-wider rounded-lg inline-block">
-                           Token #{patient.token_number}
-                         </span>
-                      ) : (
-                         <button
-                           onClick={(e) => {
-                             e.stopPropagation();
-                             setSelectedPatient(patient);
-                           }}
-                           className="px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-colors shadow-sm inline-flex items-center gap-1.5"
-                         >
-                           View Details
-                         </button>
-                      )}
+                      <span className="text-sm font-medium text-slate-500">
+                        {patient.created_at
+                          ? new Date(patient.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                          : patient.date || "Unknown"}
+                      </span>
+
+                      <div className="pl-4">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedPatient(patient);
+                          }}
+                          className="px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-colors shadow-sm inline-flex items-center gap-1.5"
+                        >
+                          View Details
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+
+                  {filteredPatients.length === 0 && !loading && (
+                    <div className="flex-1 flex flex-col items-center justify-center text-slate-400 min-h-[400px] py-16">
+                      <Inbox size={48} className="mb-4 opacity-20" />
+                      <p className="text-sm font-medium">No patients found</p>
                     </div>
-                  </motion.div>
-                ))}
-
-                {filteredPatients.length === 0 && !loading && (
-                  <div className="flex-1 flex flex-col items-center justify-center text-slate-400 min-h-[400px] py-16">
-                    <Inbox size={48} className="mb-4 opacity-20" />
-                    <p className="text-sm font-medium">No patients found</p>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
             )}
 
           </div>

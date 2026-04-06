@@ -59,75 +59,69 @@ const GetStarted = () => {
         navigate("/dashboard");
       }
     } catch (error) {
-      const message =
-        "Invalid credentials. Please try again.";
-      toast.error(message);
+      toast.error("Invalid credentials. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F4F7FE] overflow-y-auto custom-scrollbar">
+    <div className="min-h-screen flex flex-col bg-bg-soft selection:bg-primary/20 selection:text-primary-dark font-sans">
       <Navbar />
 
-      {/* Added pt-32 to provide clearance for the fixed Navbar */}
-      <main className="flex-1 flex items-center justify-center p-6 pt-32 lg:pt-40 pb-20 relative">
-        {/* DECORATIVE ELEMENTS */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg h-full -z-10 opacity-40 pointer-events-none">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#A7F3D0] rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#DBEAFE] rounded-full blur-[120px]" />
-        </div>
+      <main className="flex-1 flex items-center justify-center p-6 pt-32 pb-20 relative overflow-hidden">
+        {/* BACKGROUND DECOR */}
+        <div className="absolute top-0 left-0 w-full h-full -z-10 bg-[radial-gradient(circle_at_top_right,var(--color-primary-soft),transparent)] opacity-50" />
+        <div className="absolute bottom-0 right-0 w-full h-full -z-10 bg-[radial-gradient(circle_at_bottom_left,var(--color-secondary-soft),transparent)] opacity-30" />
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-[440px] z-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-[480px] z-10"
         >
-          {/* LOGIN CARD */}
-          <div className="bg-white border border-slate-100 rounded-[40px] p-8 md:p-12 shadow-2xl shadow-slate-200/50 relative overflow-hidden group">
-            {/* TOP ACCENT */}
-            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-400 via-[#1E293B] to-blue-400" />
+          <div className="bg-white rounded-3xl border border-slate-100 p-8 md:p-12 shadow-premium relative overflow-hidden">
+            {/* TOP ACCENT BAR */}
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary to-teal-500" />
 
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#1E293B] text-[#6EE7B7] rounded-full mb-4 shadow-sm">
-                <Sparkles size={14} />
-                <span className="text-[10px] font-black uppercase tracking-widest mt-0.5 text-white">Secure Gateway</span>
-              </div>
-              <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Clinic Login</h1>
-              <p className="text-slate-500 font-bold text-[13px] leading-relaxed">
-                Empowering healthcare efficiency with digital-first solutions.
-              </p>
+            <div className="text-center mb-12 space-y-3">
+               <div className="flex justify-center mb-6">
+                 <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+                   <ShieldCheck size={28} className="text-white" />
+                 </div>
+               </div>
+               <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Clinic Gateway</h1>
+               <p className="text-slate-500 font-medium text-sm">
+                 Access your clinic dashboard and manage patient queues with ease.
+               </p>
             </div>
 
-            {/* FORM */}
-            <form onSubmit={handleLogin} className="space-y-8">
+            <form onSubmit={handleLogin} className="space-y-6">
               <Input
                 label="Clinic Email"
                 name="email"
                 type="email"
-                placeholder="clinic@example.com"
+                placeholder="admin@clinic.com"
                 value={formData.email}
                 onChange={handleInputChange}
                 icon={Mail}
                 required
               />
 
-              <Input
-                label="Password"
-                name="password"
-                type="password"
-                placeholder="••••••••••••"
-                value={formData.password}
-                onChange={handleInputChange}
-                icon={Lock}
-                required
-              />
+                <Input
+                  label="Password"
+                  name="password"
+                  type="password"
+                  placeholder="••••••••••••"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  icon={Lock}
+                  required
+                />
 
               <Button
                 type="submit"
                 loading={loading}
-                className="w-full py-5 text-[17px] font-bold bg-[#1E293B] hover:bg-[#0F172A] text-white shadow-[0_15px_40px_rgb(30,41,59,0.3)] rounded-2xl"
+                className="w-full py-4 text-base font-bold bg-primary hover:bg-primary-dark text-white shadow-xl shadow-primary/20 rounded-xl"
                 icon={LogIn}
                 iconPosition="right"
               >
@@ -135,19 +129,24 @@ const GetStarted = () => {
               </Button>
             </form>
 
-            <div className="mt-10 pt-8 border-t border-slate-50 flex items-center justify-center gap-3 grayscale opacity-60">
-              <ShieldCheck size={18} className="text-slate-400" />
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Enterprise Encrypted Access</span>
-            </div>
+
           </div>
 
-          <div className="mt-8 text-center text-slate-400 font-bold text-xs uppercase tracking-widest pointer-events-none opacity-50">
-            © 2026 QMedix Solutions
+          <div className="mt-8 flex items-center justify-center gap-6 text-slate-400">
+             <div className="flex items-center gap-1.5 grayscale opacity-70">
+                <ShieldCheck size={14} />
+                <span className="text-[10px] font-black uppercase tracking-widest mt-0.5">SSL Secure</span>
+             </div>
+             <div className="w-1 h-1 rounded-full bg-slate-300" />
+             <div className="text-[10px] font-black uppercase tracking-widest mt-0.5 opacity-50">
+               © 2026 QMedix
+             </div>
           </div>
         </motion.div>
       </main>
     </div>
   );
 };
+
 
 export default GetStarted;

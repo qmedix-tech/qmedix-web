@@ -4,8 +4,12 @@
 /* ------------------ THEME COLORS & TOKENS ------------------ */
 @theme {
   --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
+  --color-primary-dark: #1e40af;
+  --color-primary-light: #60a5fa;
   --color-primary-soft: #eff6ff;
+
+  --color-secondary: #0d9488;
+  --color-secondary-dark: #0f766e;
   
   --color-slate-50: #f8fafc;
   --color-slate-100: #f1f5f9;
@@ -27,14 +31,22 @@
   --color-danger: #ef4444;
   --color-danger-soft: #fef2f2;
 
-  --color-bg: #f8fafc;
+  --color-bg-white: #ffffff;
+  --color-bg-soft: #f8fafc;
   --color-card: #ffffff;
 
-  --shadow-premium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-premium: 0 20px 50px rgba(0, 0, 0, 0.05);
+  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
   
-  --radius-premium: 12px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
 }
+
 
 /* ------------------ GLOBAL BASE ------------------ */
 :root {
@@ -130,6 +142,18 @@ html {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.animate-shimmer {
+  animation: shimmer 2.5s infinite linear;
+  background: linear-gradient(to right, #f6f7f8 4%, #edeef1 25%, #f6f7f8 36%);
+  background-size: 1000px 100%;
+}
+
 
 /* ------------------ TOAST OVERRIDES ------------------ */
 .Toastify__toast {

@@ -21,6 +21,7 @@ const QueueStats = ({ clinicId, doctorId, refreshTrigger, onAction }) => {
   }, [clinicId, doctorId, refreshTrigger]);
 
   const fetchStats = async () => {
+    if (!clinicId || !doctorId) return;
     try {
       const { data } = await API.get(`/queues/${clinicId}/${doctorId}`);
       setStats(data);

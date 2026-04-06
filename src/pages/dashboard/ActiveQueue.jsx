@@ -113,7 +113,7 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
             whileTap={{ scale: 0.98 }}
             onClick={() => handleQueueAction('call-next')}
             disabled={actionLoading?.action === 'call-next' || loading}
-            className="btn-premium bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 shadow-md rounded-xl py-2.5 px-5 transition-all"
+            className="btn-premium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center gap-2 shadow-lg shadow-blue-200 rounded-xl py-2.5 px-5 transition-all"
           >
             {actionLoading?.action === 'call-next' ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -127,7 +127,7 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={onNewPatient}
-            className="btn-premium bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-2 rounded-xl py-2.5 px-5 transition-all"
+            className="btn-premium bg-white border border-slate-200 hover:border-blue-300 hover:text-blue-600 text-slate-700 flex items-center gap-2 rounded-xl py-2.5 px-5 transition-all shadow-sm"
           >
             <UserPlus size={18} className="text-slate-600" />
             Add Patient
@@ -246,7 +246,7 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onNewPatient}
-                className="mt-6 btn-premium btn-secondary gap-2"
+                className="mt-6 btn-premium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center gap-2 rounded-xl py-2.5 px-6 shadow-lg shadow-blue-200 transition-all font-bold"
               >
                 <UserPlus size={16} />
                 Add First Patient

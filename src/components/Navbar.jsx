@@ -25,7 +25,7 @@ const Navbar = () => {
     location.pathname === "/onboarding";
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10);
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     const checkAuth = () =>
       setIsAuthenticated(!!localStorage.getItem("access_token"));
 
@@ -35,10 +35,6 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [location.pathname]);
 
-  /**
-   * Guards Dashboard access.
-   * Redirects to onboarding if clinic_id is missing.
-   */
   const handleDashboardClick = () => {
     const userStr = localStorage.getItem('user');
     const user = JSON.parse(userStr || '{}');
@@ -53,9 +49,6 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
-  /**
-   * Clears session and logs out.
-   */
   const handleLogout = () => {
     localStorage.clear();
     toast.success("Logged out successfully");
@@ -63,128 +56,121 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
+  const navLinks = [
+    { name: "Home", href: "/" },
+    { name: "Features", href: "/#features" },
+    { name: "About", href: "/#about" },
+  ];
+
   return (
     <nav
-      className={`fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-[1440px] z-50 transition-all duration-500 rounded-[32px] px-8 py-4 flex items-center justify-between border
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 px-6 py-4
         ${scrolled || !isLandingPage
-          ? "bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-[0_20px_50px_rgba(0,0,0,0.05)]"
+          ? "bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm"
           : "bg-transparent border-transparent"
         }`}
     >
-      {/* LOGO */}
-      <Link to="/" className="flex items-center gap-3">
-        <motion.div 
-          whileHover={{ scale: 1.05 }} 
-          className="flex items-center gap-3"
-        >
-          <div className="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200">
-             <img src="/qmedics-logo.svg" alt="QMedix Logo" className="w-6 h-6 brightness-0 invert" />
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        {/* LOGO */}
+        <Link to="/" className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+            <HeartPulse size={20} className="text-white" />
           </div>
-          <span className="font-black text-2xl tracking-tighter text-slate-900 leading-none">
-            Q<span className="text-blue-600">Medix</span>
+          <span className="font-bold text-xl tracking-tight text-slate-900">
+            QMedix
           </span>
-        </motion.div>
-      </Link>
+        </Link>
 
-      {/* CENTER BADGE (LANDING ONLY) */}
-      {isLandingPage && (
-        <div className="hidden lg:flex items-center justify-center">
-           <div className="px-6 py-2 bg-emerald-50/80 backdrop-blur-sm border border-emerald-100 rounded-full flex items-center gap-2">
-             <Sparkles size={14} className="text-emerald-500" />
-             <span className="text-[10px] font-black text-emerald-700 uppercase tracking-[0.2em] leading-none pt-0.5">
-               THE FUTURE OF CLINIC MANAGEMENT
-             </span>
-           </div>
+        {/* DESKTOP LINKS */}
+        <div className="hidden md:flex items-center gap-8">
+          {isLandingPage && navLinks.map((link) => (
+            <a
+              key={link.name}
+              href={link.href}
+              className="text-sm font-medium text-slate-600 hover:text-primary transition-colors"
+            >
+              {link.name}
+            </a>
+          ))}
         </div>
-      )}
 
-      {/* RIGHT ACTIONS */}
-      <div className="hidden md:flex items-center gap-6">
-        {isAuthenticated && !isAuthPage ? (
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleDashboardClick}
-            className="flex items-center gap-2.5 px-6 py-3 bg-slate-900 text-white rounded-2xl text-sm font-bold shadow-xl shadow-slate-200 transition-all"
-          >
-            <LayoutDashboard size={18} />
-            Dashboard
-          </motion.button>
-        ) : (
-          <div className="flex items-center gap-4">
-             {/* SIGN IN LINK - Only visible if not already on login page */}
-             {!isAuthPage && !isAuthenticated && (
-               <Link to="/get-started" className="text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors px-4">
-                 Sign In
-               </Link>
-             )}
-             
-             {/* GET STARTED CTA - Hidden on Login/Onboarding to avoid redundancy */}
-             {!isAuthPage && !isAuthenticated && (
-               <motion.button
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/get-started")}
-                className="px-6 py-3 bg-[#1E293B] text-white rounded-2xl text-sm font-black shadow-[0_15px_30px_rgba(30,41,59,0.25)] flex items-center gap-2 transition-all hover:bg-[#0f172a]"
-              >
-                Get Started
-                <ArrowRight size={18} />
-              </motion.button>
-             )}
+        {/* ACTIONS */}
+        <div className="hidden md:flex items-center gap-4">
+          {isAuthenticated && !isAuthPage ? (
+            <button
+              onClick={handleDashboardClick}
+              className="flex items-center gap-2 px-5 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition-all shadow-md active:scale-95"
+            >
+              <LayoutDashboard size={16} />
+              Dashboard
+            </button>
+          ) : (
+            <div className="flex items-center gap-4">
+              {!isAuthPage && !isAuthenticated && (
+                <Link
+                  to="/get-started"
+                  className="px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all active:scale-95 flex items-center gap-2"
+                >
+                  Get Started
+                  <ArrowRight size={16} />
+                </Link>
+              )}
+              {isOnboarding && (
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-5 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-semibold hover:bg-slate-200 transition-all active:scale-95"
+                >
+                  <LogOut size={16} />
+                  Log Out
+                </button>
+              )}
+            </div>
+          )}
+        </div>
 
-             {/* LOGOUT BUTTON - Specifically for Onboarding Page */}
-             {isOnboarding && (
-               <motion.button
-                whileHover={{ scale: 1.05, color: '#e11d48' }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleLogout}
-                className="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-500 rounded-2xl text-sm font-bold transition-all"
-              >
-                <LogOut size={18} />
-                Log Out
-              </motion.button>
-             )}
-          </div>
-        )}
+        {/* MOBILE TRIGGER */}
+        <button
+          className="md:hidden p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </div>
-
-      {/* MOBILE TRIGGER */}
-      <button className="md:hidden p-3 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 hover:text-slate-900 transition-colors" onClick={() => setIsOpen(!isOpen)}>
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
 
       {/* MOBILE MENU */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="absolute top-24 left-0 right-0 mx-6 bg-white border border-slate-100 rounded-[40px] shadow-2xl p-8 flex flex-col gap-4 md:hidden overflow-hidden"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-white border-t border-slate-100 overflow-hidden"
           >
-            {/* MOBILE ACCENT */}
-            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-500" />
-            
-            <button
-              onClick={() => {
-                if (isAuthenticated) {
-                  if (isOnboarding) {
-                    handleLogout();
-                  } else {
+            <div className="flex flex-col p-6 gap-4">
+              {isLandingPage && navLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className="text-base font-medium text-slate-700 py-2 border-b border-slate-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.name}
+                </a>
+              ))}
+              <button
+                onClick={() => {
+                  if (isAuthenticated) {
                     handleDashboardClick();
+                  } else {
+                    navigate("/get-started");
                   }
-                } else {
-                  navigate("/get-started");
-                }
-                setIsOpen(false);
-              }}
-              className="w-full py-5 bg-[#1E293B] text-white rounded-2xl font-black text-xl shadow-[0_10px_30px_rgb(30,41,59,0.2)] flex items-center justify-center gap-3"
-            >
-              {isAuthenticated ? (isOnboarding ? 'Log Out' : 'Go to Dashboard') : 'Get Started Now'}
-              <ArrowRight size={20} />
-            </button>
-            <div className="text-center">
-              <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Experience seamless healthcare</span>
+                  setIsOpen(false);
+                }}
+                className="w-full py-3 bg-primary text-white rounded-lg font-bold shadow-md flex items-center justify-center gap-2 mt-2"
+              >
+                {isAuthenticated ? 'Go to Dashboard' : 'Get Started Now'}
+                <ArrowRight size={18} />
+              </button>
             </div>
           </motion.div>
         )}

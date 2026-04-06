@@ -26,29 +26,53 @@ const Dashboard = () => {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
-      fetchDoctors(parsedUser.clinic_id);
     } else {
       navigate('/get-started');
     }
   }, [navigate]);
 
-  const fetchDoctors = async (clinicId) => {
-     if (!clinicId) return;
-     try {
-       const { data } = await API.get(`/doctors/${clinicId}`);
-       const doctorList = Array.isArray(data) ? data : (data.doctors || []);
-       // ✅ ONLY SHOW ACTIVE DOCTORS ON DASHBOARD
-       const activeDoctors = doctorList.filter(d => d.is_active === true);
-       setDoctors(activeDoctors);
+  // Re-fetch doctors list whenever refreshTrigger changes (on new patient)
+  useEffect(() => {
+    if (user?.clinic_id) {
+      fetchDoctors(user.clinic_id);
+    }
+  }, [refreshTrigger, user?.clinic_id]);
 
-       // Default to the first doctor if available
-       if (activeDoctors.length > 0 && !selectedDoctorId) {
-         setSelectedDoctorId(activeDoctors[0].doctor_id);
-       }
-     } catch (error) {
-       console.error('Failed to fetch doctors:', error);
-     }
+
+  const fetchDoctors = async (clinicId) => {
+    if (!clinicId) return;
+    try {
+      const { data } = await API.get(`/doctors/${clinicId}`);
+      const doctorList = Array.isArray(data) ? data : (data.doctors || []);
+
+      // 1. Initially get active doctors
+      const activeDoctors = doctorList.filter(d => d.is_active === true);
+
+      // 2. Filter further: Only those with active tokens today
+      const filteredByTokens = await Promise.all(
+        activeDoctors.map(async (doc) => {
+          try {
+            const { data: tokens } = await API.get(`/queues/${clinicId}/${doc.doctor_id}/active-tokens`);
+            return (tokens && tokens.length > 0) ? doc : null;
+          } catch (err) {
+            console.error(`Failed to check tokens for doctor ${doc.doctor_id}:`, err);
+            return null;
+          }
+        })
+      );
+
+      const doctorsWithTokens = filteredByTokens.filter(d => d !== null);
+      setDoctors(doctorsWithTokens);
+
+      // Default to the first doctor if available
+      if (doctorsWithTokens.length > 0 && !selectedDoctorId) {
+        setSelectedDoctorId(doctorsWithTokens[0].doctor_id);
+      }
+    } catch (error) {
+      console.error('Failed to fetch doctors:', error);
+    }
   };
+
 
   const fetchClinicData = async () => {
     try {
@@ -90,7 +114,7 @@ const Dashboard = () => {
           <div>
             <div className="flex items-center gap-2 mb-0.5">
               <Sparkles size={16} className="text-blue-600" />
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+              <h1 className="text-md font-bold text-slate-900 tracking-tight">
                 {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
               </h1>
             </div>
@@ -106,7 +130,8 @@ const Dashboard = () => {
             {/* USER PROFILE */}
             <div className="flex items-center gap-4 pl-8 border-l border-slate-200/60">
               <div className="text-right hidden sm:block">
-                <p className="text-[15px] font-bold text-slate-900 leading-tight">{user?.clinicName || "Clinic"}</p>
+                <p className="text-md font-bold text-slate-900 leading-tight">{user?.clinicName || "Clinic"}</p>
+
                 <p className="text-[11px] font-medium text-slate-400">{user?.email}</p>
               </div>
               <motion.div

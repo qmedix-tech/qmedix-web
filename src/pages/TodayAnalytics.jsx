@@ -92,22 +92,12 @@ const TodayAnalytics = () => {
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* HEADER */}
         <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 flex items-center justify-between sticky top-0 z-20">
-          <div className="flex items-center gap-4">
-            <motion.button 
-              whileHover={{ scale: 1.1, backgroundColor: '#f1f5f9' }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => navigate('/dashboard')}
-              className="p-2 rounded-xl transition-colors text-slate-400 hover:text-slate-900"
-            >
-              <ArrowLeft size={20} />
-            </motion.button>
-            <div>
-              <div className="flex items-center gap-2 mb-0.5">
-                <PieChart size={16} className="text-blue-600" />
-                <h1 className="text-lg font-bold text-slate-900 tracking-tight">Daily Analytics</h1>
-              </div>
-              <p className="text-xs font-medium text-slate-500">Live performance monitoring for {user?.clinicName || "Clinic"}</p>
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <PieChart size={16} className="text-blue-600" />
+              <h1 className="text-lg font-bold text-slate-900 tracking-tight">Daily Analytics</h1>
             </div>
+            <p className="text-xs font-medium text-slate-500">Live performance monitoring for {user?.clinicName || "Clinic"}</p>
           </div>
 
           <motion.button 

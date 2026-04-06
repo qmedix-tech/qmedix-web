@@ -105,9 +105,34 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
 
   const handleScheduleChange = (index, field, value) => {
     const newSchedules = [...formData.schedules];
-    newSchedules[index][field] = value;
+    const currentRow = newSchedules[index];
+
+    if (field === 'start_time') {
+      currentRow.start_time = value;
+      // If new start_time is >= current end_time, set end_time to next slot
+      const startIndex = TIME_OPTIONS.findIndex(opt => opt.value === value);
+      const endIndex = TIME_OPTIONS.findIndex(opt => opt.value === currentRow.end_time);
+
+      if (startIndex >= endIndex) {
+        const nextSlot = TIME_OPTIONS[startIndex + 1] || TIME_OPTIONS[startIndex];
+        currentRow.end_time = nextSlot.value;
+      }
+    } else if (field === 'end_time') {
+      const startIndex = TIME_OPTIONS.findIndex(opt => opt.value === currentRow.start_time);
+      const endIndex = TIME_OPTIONS.findIndex(opt => opt.value === value);
+
+      if (endIndex <= startIndex) {
+        toast.warn('End time must be after start time');
+        return;
+      }
+      currentRow.end_time = value;
+    } else {
+      currentRow[field] = value;
+    }
+
     setFormData(prev => ({ ...prev, schedules: newSchedules }));
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -388,8 +413,9 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
                             <TimeSelect
                               value={row.start_time}
                               onChange={(val) => handleScheduleChange(idx, 'start_time', val)}
-                              options={TIME_OPTIONS}
+                              options={TIME_OPTIONS.slice(0, -1)}
                             />
+
                           </div>
                         </div>
 
@@ -399,8 +425,13 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
                             <TimeSelect
                               value={row.end_time}
                               onChange={(val) => handleScheduleChange(idx, 'end_time', val)}
-                              options={TIME_OPTIONS}
+                              options={TIME_OPTIONS.filter(opt => {
+                                const startIndex = TIME_OPTIONS.findIndex(o => o.value === row.start_time);
+                                const currentIndex = TIME_OPTIONS.findIndex(o => o.value === opt.value);
+                                return currentIndex > startIndex;
+                              })}
                             />
+
                           </div>
                         </div>
 

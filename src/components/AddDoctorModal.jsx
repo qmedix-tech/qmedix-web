@@ -76,9 +76,34 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
 
   const handleScheduleChange = (index, field, value) => {
     const newSchedules = [...formData.schedules];
-    newSchedules[index][field] = value;
+    const currentRow = newSchedules[index];
+
+    if (field === 'start_time') {
+      currentRow.start_time = value;
+      // If new start_time is >= current end_time, set end_time to next slot
+      const startIndex = TIME_OPTIONS.findIndex(opt => opt.value === value);
+      const endIndex = TIME_OPTIONS.findIndex(opt => opt.value === currentRow.end_time);
+
+      if (startIndex >= endIndex) {
+        const nextSlot = TIME_OPTIONS[startIndex + 1] || TIME_OPTIONS[startIndex];
+        currentRow.end_time = nextSlot.value;
+      }
+    } else if (field === 'end_time') {
+      const startIndex = TIME_OPTIONS.findIndex(opt => opt.value === currentRow.start_time);
+      const endIndex = TIME_OPTIONS.findIndex(opt => opt.value === value);
+
+      if (endIndex <= startIndex) {
+        toast.warn('End time must be after start time');
+        return;
+      }
+      currentRow.end_time = value;
+    } else {
+      currentRow[field] = value;
+    }
+
     setFormData(prev => ({ ...prev, schedules: newSchedules }));
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -331,15 +356,20 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
                     >
                       <div className="w-full sm:flex-1">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block ml-1">Availability Day</label>
-                        <select
-                          value={row.day_of_week}
-                          onChange={(e) => handleScheduleChange(idx, 'day_of_week', e.target.value)}
-                          className="w-full bg-white border border-slate-100 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 shadow-sm cursor-pointer"
-                        >
-                          {DAYS.map(day => (
-                            <option key={day.value} value={day.value}>{day.label}</option>
-                          ))}
-                        </select>
+                        <div className="relative group/select">
+                          <select
+                            value={row.day_of_week}
+                            onChange={(e) => handleScheduleChange(idx, 'day_of_week', e.target.value)}
+                            className="w-full bg-white border border-slate-100 rounded-xl px-4 py-2.5 pr-10 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 shadow-sm cursor-pointer appearance-none transition-all duration-200"
+                          >
+                            {DAYS.map(day => (
+                              <option key={day.value} value={day.value}>{day.label}</option>
+                            ))}
+                          </select>
+                          <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400 group-focus-within/select:text-blue-500 transition-colors">
+                            <ChevronDown size={14} />
+                          </div>
+                        </div>
                       </div>
 
                       <div className="w-full sm:w-32">
@@ -348,8 +378,9 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
                           <TimeSelect
                             value={row.start_time}
                             onChange={(val) => handleScheduleChange(idx, 'start_time', val)}
-                            options={TIME_OPTIONS}
+                            options={TIME_OPTIONS.slice(0, -1)}
                           />
+
                         </div>
                       </div>
 
@@ -359,8 +390,13 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
                           <TimeSelect
                             value={row.end_time}
                             onChange={(val) => handleScheduleChange(idx, 'end_time', val)}
-                            options={TIME_OPTIONS}
+                            options={TIME_OPTIONS.filter(opt => {
+                              const startIndex = TIME_OPTIONS.findIndex(o => o.value === row.start_time);
+                              const currentIndex = TIME_OPTIONS.findIndex(o => o.value === opt.value);
+                              return currentIndex > startIndex;
+                            })}
                           />
+
                         </div>
                       </div>
 
