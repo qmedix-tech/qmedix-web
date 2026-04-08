@@ -75,7 +75,7 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
         phone: doctor.phone || '',
         specialty: doctor.specialty || '',
         description: doctor.description || '',
-        is_active: doctor.status === 'ACTIVE',
+        is_active: doctor.is_active,
         schedules: finalSchedules
       });
     }

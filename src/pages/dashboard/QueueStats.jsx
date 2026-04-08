@@ -21,8 +21,12 @@ const QueueStats = ({ clinicId, doctorId, refreshTrigger, onAction }) => {
   }, [clinicId, doctorId, refreshTrigger]);
 
   const fetchStats = async () => {
-    if (!clinicId || !doctorId) return;
+    if (!clinicId || !doctorId) {
+      setLoading(false);
+      return;
+    }
     try {
+      setLoading(true); // Ensure loading starts only when we have data to fetch
       const { data } = await API.get(`/queues/${clinicId}/${doctorId}`);
       setStats(data);
     } catch (e) {

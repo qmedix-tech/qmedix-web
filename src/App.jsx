@@ -10,7 +10,7 @@ import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/dashboard/Dashboard';
 import PatientsList from './pages/PatientsList';
 import ClinicProfile from './pages/ClinicProfile';
-import QRCodeGenerator from './pages/QRCodeGenerator';
+
 import TodayAnalytics from './pages/TodayAnalytics';
 import Doctors from './pages/Doctors';
 import UpcomingBookings from './pages/UpcomingBookings';
@@ -68,7 +68,7 @@ const App = () => {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/patientlist" element={<PatientsList />} />
           <Route path="/dashboard/clinic" element={<ClinicProfile />} />
-          <Route path="/dashboard/qrcode" element={<QRCodeGenerator />} />
+
           <Route path="/dashboard/analytics" element={<TodayAnalytics />} />
           <Route path="/dashboard/doctors" element={<Doctors />} />
           <Route path="/dashboard/upcoming" element={<UpcomingBookings />} />

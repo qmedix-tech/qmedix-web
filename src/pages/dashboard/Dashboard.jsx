@@ -44,9 +44,8 @@ const Dashboard = () => {
     if (!clinicId) return;
     try {
       setDoctorsLoading(true);
-      const { data } = await API.get(`/doctors/${clinicId}`, { params: { today_only: true } });
-      const doctorsWithTokens = Array.isArray(data) ? data : (data.doctors || []);
-      const activeDoctors = doctorsWithTokens.filter(doc => doc.is_active);
+      const { data } = await API.get(`/doctors/${clinicId}`, { params: { today_only: true, is_active: true } });
+      const activeDoctors = Array.isArray(data) ? data : (data.doctors || []);
 
       setDoctors(activeDoctors);
 

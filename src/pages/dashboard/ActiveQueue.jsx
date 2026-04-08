@@ -12,8 +12,8 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState('');
-  const [doctorSchedule, setDoctorSchedule] = useState([]);
-  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [sessions, setSessions] = useState([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
 
   // Helper to convert 24h to AM/PM
   const formatTime = (time24) => {
@@ -27,53 +27,65 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
 
   useEffect(() => {
     if (doctorId) {
-      fetchDoctorSchedule(doctorId);
-      setSelectedSlot(''); // Reset slot filter when doctor changes
+      fetchSessions(doctorId);
     }
-  }, [doctorId]);
+  }, [doctorId, refreshTrigger]);
 
-  const fetchDoctorSchedule = async (id) => {
+  const fetchSessions = async (id) => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const clinicId = user.clinic_id;
+
+    if (!clinicId || !id) {
+      setSessionsLoading(false);
+      return;
+    }
+
     try {
-      setSlotsLoading(true);
-      const { data } = await API.get(`/doctors/details/${id}`);
-      setDoctorSchedule(data.availability?.weekly_schedule || []);
+      setSessionsLoading(true);
+      const { data } = await API.get(`/queues/${clinicId}/${id}/sessions`);
+      const allSessions = Array.isArray(data) ? data : [];
+      
+      // Filter only sessions with waiting patients
+      const activeSessions = allSessions.filter(s => s.waiting_count > 0);
+      setSessions(activeSessions);
+
+      // Default Behavior: Select session matching current time if it has waiting patients
+      const now = new Date();
+      const currentHHMMSS = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+      
+      const matchingSession = activeSessions.find(s => 
+        currentHHMMSS >= s.start_time && currentHHMMSS <= s.end_time
+      );
+
+      if (matchingSession) {
+        setSelectedSlot(matchingSession.start_time);
+      } else if (activeSessions.length > 0) {
+        // Default to the first available session if no current session matches
+        setSelectedSlot(activeSessions[0].start_time);
+      }
     } catch (e) {
-      console.error('Failed to load schedule:', e);
-      setDoctorSchedule([]);
+      console.error('Failed to load sessions:', e);
+      setSessions([]);
     } finally {
-      setSlotsLoading(false);
+      setSessionsLoading(false);
     }
   };
-
-  const getTodaySlots = () => {
-    if (!doctorSchedule.length) return [];
-
-    const now = new Date();
-    const currentHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-    // Get current day string (e.g. MONDAY)
-    const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
-    const schedule = doctorSchedule.find(s => s.day === dayOfWeek);
-
-    if (!schedule) return [];
-
-    // 🔥 Filter slots to only those starting AT or AFTER current time
-    return (schedule.slots || []).filter(slot => slot.start_time.substring(0, 5) >= currentHHMM);
-  };
-
-  const todaySlots = getTodaySlots();
 
   useEffect(() => {
     fetchActiveTokens();
   }, [doctorId, refreshTrigger, selectedSlot]);
 
   const fetchActiveTokens = async () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const clinicId = user.clinic_id;
+
+    if (!clinicId || !doctorId) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const clinicId = user.clinic_id;
-
-      if (!clinicId || !doctorId) return;
 
       const params = {};
       if (selectedSlot) {
@@ -165,53 +177,62 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
           </div>
 
           {/* SLOT FILTER DROPDOWN - Aligned Center-Left */}
-          <div className="relative group/slot">
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/slot:text-blue-500 transition-colors pointer-events-none">
-              <Clock size={16} />
+          {sessions.length > 0 && (
+            <div className="relative group/slot">
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/slot:text-blue-500 transition-colors pointer-events-none">
+                <Clock size={16} />
+              </div>
+              <select
+                value={selectedSlot}
+                onChange={(e) => setSelectedSlot(e.target.value)}
+                className="pl-10 pr-10 py-2.5 bg-white border border-slate-200 text-slate-700 text-[13px] font-bold rounded-xl appearance-none focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-300 transition-all cursor-pointer min-w-[200px] shadow-sm"
+              >
+                {sessions.map((session, idx) => (
+                  <option key={idx} value={session.start_time}>
+                    {formatTime(session.start_time)} – {formatTime(session.end_time)}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within/slot:rotate-180 transition-transform duration-300">
+                <ChevronDown size={14} />
+              </div>
             </div>
-            <select
-              value={selectedSlot}
-              onChange={(e) => setSelectedSlot(e.target.value)}
-              className="pl-10 pr-10 py-2.5 bg-white border border-slate-200 text-slate-700 text-[13px] font-bold rounded-xl appearance-none focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-300 transition-all cursor-pointer min-w-[150px] shadow-sm"
-            >
-              <option value="">Now Active</option>
-              {todaySlots.map((slot, idx) => (
-                <option key={idx} value={slot.start_time.substring(0, 5)}>
-                  {formatTime(slot.start_time.substring(0, 5))}
-                </option>
-              ))}
-            </select>
-            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within/slot:rotate-180 transition-transform duration-300">
-              <ChevronDown size={14} />
-            </div>
-          </div>
+          )}
         </div>
 
         <div className="flex items-center gap-3">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => handleQueueAction('call-next')}
-            disabled={actionLoading?.action === 'call-next' || loading}
-            className="btn-premium bg-blue-50 border border-blue-200 hover:bg-blue-100 hover:border-blue-300 text-blue-700 flex items-center gap-2 shadow-sm rounded-xl py-2.5 px-5 transition-all text-sm font-bold"
-          >
-            {actionLoading?.action === 'call-next' ? (
-              <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <UserCheck size={18} className="text-blue-600" />
-            )}
-            Call Next Patient
-          </motion.button>
+          {activeTokens.length > 0 && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => handleQueueAction('call-next')}
+              disabled={actionLoading?.action === 'call-next' || loading}
+              className="btn-premium bg-blue-50 border border-blue-200 hover:bg-blue-100 hover:border-blue-300 text-blue-700 flex items-center gap-2 shadow-sm rounded-xl py-2.5 px-5 transition-all text-sm font-bold"
+            >
+              {actionLoading?.action === 'call-next' ? (
+                <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <UserCheck size={18} className="text-blue-600" />
+              )}
+              Call Next Patient
+            </motion.button>
+          )}
         </div>
       </div>
 
       {/* QUEUE CONTENT */}
       <div className="bg-white rounded-3xl border border-slate-200 shadow-[0_4px_20px_rgba(0,0,0,0.03)] overflow-hidden">
         {/* TABLE HEADER */}
-        <div className="grid grid-cols-[0.6fr_1.5fr_1fr_1.2fr_1.2fr_1.5fr] gap-4 p-5 border-b border-slate-200 bg-[#F4F7FE] items-center">
-          <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest pl-2">Token</div>
-          <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Patient Details</div>
-          <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Phone</div>
+        <div className="grid grid-cols-[0.8fr_2fr_1.3fr_1.2fr_1fr_1.2fr] px-8 py-4 border-b border-slate-200 bg-slate-50/50 items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-10 flex-shrink-0" />
+            <div className="text-[11px] font-black text-slate-400 border-none bg-transparent uppercase tracking-widest">Token</div>
+          </div>
+          <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest pl-2">Patient Details</div>
+          <div className="flex items-center gap-1.5 pl-1.5 focus:outline-none focus:ring-0">
+            <div className="w-[14px] flex-shrink-0" />
+            <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Phone</div>
+          </div>
           <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Booked Slot</div>
           <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Status</div>
           <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">Actions</div>
@@ -220,17 +241,17 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
         {/* TABLE BODY */}
         <div className="p-2">
           {loading ? (
-            <div className="space-y-2">
+            <div className="divide-y divide-slate-100">
               {[1, 2, 3].map(i => (
-                <div key={i} className="grid grid-cols-[0.6fr_1.5fr_1fr_1.2fr_1.2fr_1.5fr] gap-4 p-4 animate-pulse border-b border-slate-50">
-                  <div className="w-10 h-10 bg-slate-100 rounded-xl" />
-                  <div className="h-4 bg-slate-100 rounded-md w-2/3 self-center" />
-                  <div className="h-4 bg-slate-50 rounded-md w-20 self-center" />
-                  <div className="h-4 bg-slate-50 rounded-md w-16 self-center" />
-                  <div className="h-6 bg-slate-50 rounded-full w-16 self-center" />
+                <div key={i} className="grid grid-cols-[0.8fr_2fr_1.3fr_1.2fr_1fr_1.2fr] px-8 py-5 items-center relative overflow-hidden">
+                  <div className="w-10 h-10 bg-slate-100 rounded-xl animate-shimmer" />
+                  <div className="h-4 bg-slate-100 rounded-md w-2/3 ml-6 animate-shimmer" />
+                  <div className="h-4 bg-slate-50 rounded-md w-20 ml-4 animate-shimmer" />
+                  <div className="h-4 bg-slate-50 rounded-md w-16 animate-shimmer" />
+                  <div className="h-6 bg-slate-50 rounded-full w-16 animate-shimmer" />
                   <div className="flex gap-2 justify-center">
-                    <div className="w-8 h-8 bg-slate-100 rounded-lg" />
-                    <div className="w-8 h-8 bg-slate-100 rounded-lg" />
+                    <div className="w-8 h-8 bg-slate-100 rounded-lg animate-shimmer" />
+                    <div className="w-8 h-8 bg-slate-100 rounded-lg animate-shimmer" />
                   </div>
                 </div>
               ))}
@@ -245,27 +266,28 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
                     initial={{ opacity: 0, scale: 0.98, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.98, x: -10 }}
-                    className="group border-b border-slate-200 last:border-0 flex items-center grid grid-cols-[0.6fr_1.5fr_1fr_1.2fr_1.2fr_1.5fr] gap-4 p-3 hover:bg-slate-50/50 transition-colors"
+                    className="grid grid-cols-[0.8fr_2fr_1.3fr_1.2fr_1fr_1.2fr] px-8 py-5 items-center hover:bg-slate-50/80 transition-colors group border-b border-slate-100 last:border-0"
                   >
-                    <div className="flex items-center gap-3 pl-2">
-                      <div className="w-10 h-10 bg-slate-100 text-slate-700 rounded-xl flex items-center justify-center font-bold">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 flex-shrink-0 bg-slate-100 text-slate-700 rounded-xl flex items-center justify-center font-bold shadow-sm transition-all group-hover:bg-[#1E293B] group-hover:text-white">
                         #{token.token_number}
                       </div>
                     </div>
 
-                    <div>
+                    <div className="pl-2">
+
                       <p className="text-[14px] font-bold text-slate-800 line-clamp-1">
                         {token.patient_name || token.name || 'Anonymous Patient'}
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-slate-500">
-                      <Phone size={14} className="opacity-50" />
-                      <span className="text-sm font-semibold font-mono">{token.patient_phone || token.phone || '--'}</span>
+                    <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-600 font-mono tracking-tight pl-1.5 focus:outline-none">
+                      <Phone size={14} className="opacity-40" />
+                      {token.patient_phone || token.phone || '--'}
                     </div>
 
                     <div className="flex items-center gap-1.5 text-slate-600 font-bold">
-                      <Clock size={14} className="text-blue-500" />
+                      <Clock size={14} className="text-blue-500 opacity-60" />
                       <span className="text-[13px]">{formatTime(token.booked_slot_start?.substring(0, 5))}</span>
                     </div>
 

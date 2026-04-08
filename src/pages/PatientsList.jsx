@@ -118,7 +118,7 @@ const PatientsList = () => {
 
           <div className="flex items-center gap-4 w-full md:w-auto">
             {/* SEARCH */}
-            <div className="relative group flex-1 md:w-80 lg:w-96">
+            <div className="relative group flex-1 md:w-80">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                 <Search size={18} />
               </div>
@@ -178,11 +178,17 @@ const PatientsList = () => {
               /* TABLE VIEW */
               <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
                 {/* HEADER */}
-                <div className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr] px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200 bg-slate-50/50">
-                  <span>Patient</span>
-                  <span>Contact</span>
+                <div className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr] px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200 bg-slate-50/50 items-center">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 flex-shrink-0" />
+                    <span>Patient</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-[14px] flex-shrink-0" />
+                    <span>Contact</span>
+                  </div>
                   <span>Registered</span>
-                  <span className='pl-10'>Action</span>
+                  <span className="pl-10">Action</span>
                 </div>
 
                 {/* BODY */}
@@ -213,7 +219,7 @@ const PatientsList = () => {
                       className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr] px-8 py-5 items-center hover:bg-slate-50/80 transition-colors group border-b border-slate-200 last:border-0"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 flex-shrink-0 rounded-xl overflow-hidden flex items-center justify-center bg-white border border-slate-100 shadow-sm group-hover:bg-[#1E293B] transition-all">
+                        <div className="w-10 h-10 flex-shrink-0 rounded-xl overflow-hidden flex items-center justify-center bg-white border border-slate-100 shadow-sm group-hover:bg-[#1E293B] group-hover:text-white transition-all">
                           {patient.dp_url ? (
                             <img
                               src={patient.dp_url}
@@ -231,7 +237,10 @@ const PatientsList = () => {
                         </div>
                       </div>
 
-                      <span className="text-sm font-semibold text-slate-600 font-mono tracking-tight">{patient.patient_phone || patient.phone || 'N/A'}</span>
+                      <div className="text-sm font-semibold text-slate-600 font-mono tracking-tight flex items-center gap-1.5">
+                        <Phone size={14} className="opacity-40" />
+                        {patient.patient_phone || patient.phone || 'N/A'}
+                      </div>
 
                       <span className="text-sm font-medium text-slate-500">
                         {patient.created_at

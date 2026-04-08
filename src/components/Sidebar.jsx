@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  LayoutDashboard, Users2, Building2, LogOut, QrCode, BarChart3, Stethoscope, ChevronRight, CalendarClock
+  LayoutDashboard, Users2, Building2, LogOut, BarChart3, Stethoscope, ChevronRight, CalendarClock
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -36,7 +36,6 @@ const Sidebar = () => {
     { icon: CalendarClock, label: 'Upcoming', path: '/dashboard/upcoming' },
     { icon: Stethoscope, label: 'Doctors', path: '/dashboard/doctors' },
     { icon: BarChart3, label: 'Analytics', path: '/dashboard/analytics' },
-    { icon: QrCode, label: 'QR Code', path: '/dashboard/qrcode' },
     { icon: Building2, label: 'Clinic', path: '/dashboard/clinic' },
   ];
 

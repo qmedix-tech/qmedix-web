@@ -4,7 +4,6 @@ import { toast } from "react-toastify";
 import API from "../api/axios";
 import Input from "../components/Input";
 import Button from "../components/Button";
-import Navbar from "../components/Navbar";
 import { ArrowRight, Loader2, Sparkles, ShieldCheck, Mail, Lock, LogIn } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -67,31 +66,31 @@ const GetStarted = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg-soft selection:bg-primary/20 selection:text-primary-dark font-sans">
-      <Navbar />
+    <div className="h-screen w-full flex items-center justify-center bg-[#F4F7FE] overflow-hidden relative selection:bg-primary/20 selection:text-primary-dark font-sans">
+      {/* BACKGROUND DECOR */}
+      <div className="absolute top-0 left-0 w-full h-full -z-10 bg-[radial-gradient(circle_at_top_right,var(--color-primary-soft),transparent)] opacity-50" />
+      <div className="absolute bottom-0 right-0 w-full h-full -z-10 bg-[radial-gradient(circle_at_bottom_left,var(--color-secondary-soft),transparent)] opacity-30" />
 
-      <main className="flex-1 flex items-center justify-center p-6 pt-32 pb-20 relative overflow-hidden">
-        {/* BACKGROUND DECOR */}
-        <div className="absolute top-0 left-0 w-full h-full -z-10 bg-[radial-gradient(circle_at_top_right,var(--color-primary-soft),transparent)] opacity-50" />
-        <div className="absolute bottom-0 right-0 w-full h-full -z-10 bg-[radial-gradient(circle_at_bottom_left,var(--color-secondary-soft),transparent)] opacity-30" />
+      <main className="relative z-10 p-6">
+
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-[480px] z-10"
         >
-          <div className="bg-white rounded-3xl border border-slate-100 p-8 md:p-12 shadow-premium relative overflow-hidden">
+          <div className="bg-white rounded-3xl border border-slate-100 p-8 md:p-10 shadow-premium relative overflow-hidden">
             {/* TOP ACCENT BAR */}
             <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary to-teal-500" />
 
-            <div className="text-center mb-12 space-y-3">
-               <div className="flex justify-center mb-6">
-                 <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-                   <ShieldCheck size={28} className="text-white" />
+            <div className="text-center mb-8 space-y-3">
+               <div className="flex justify-center mb-4">
+                 <div className="w-11 h-11 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+                   <ShieldCheck size={26} className="text-white" />
                  </div>
                </div>
-               <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Clinic Gateway</h1>
-               <p className="text-slate-500 font-medium text-sm">
+               <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Clinic Gateway</h1>
+               <p className="text-slate-500 font-medium text-xs">
                  Access your clinic dashboard and manage patient queues with ease.
                </p>
             </div>
