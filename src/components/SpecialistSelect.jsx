@@ -8,7 +8,7 @@ import {
  * SpecialistSelect Component
  * A premium, portrait-enabled dropdown for selecting clinic practitioners.
  */
-const SpecialistSelect = ({ doctors, selectedId, onSelect }) => {
+const SpecialistSelect = ({ doctors, selectedId, onSelect, loading = false, emptyMessage = 'No specialists' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const containerRef = useRef(null);
@@ -56,7 +56,8 @@ const SpecialistSelect = ({ doctors, selectedId, onSelect }) => {
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl pl-3 pr-10 py-2 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm w-full text-left group relative"
+        disabled={loading || doctors.length === 0}
+        className="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl pl-3 pr-10 py-2 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm w-full md:w-auto md:min-w-[260px] text-left group relative disabled:opacity-60 disabled:cursor-not-allowed"
       >
         <div className="w-10 h-10 bg-blue-50 border border-blue-100 rounded-xl overflow-hidden flex items-center justify-center shrink-0 shadow-inner group-hover:bg-blue-100 transition-colors">
           {selectedDoctor?.dp_url ? (
@@ -72,10 +73,10 @@ const SpecialistSelect = ({ doctors, selectedId, onSelect }) => {
 
         <div className="flex-1 min-w-0 pr-2">
           <p className="text-[12px] font-black text-slate-900 leading-none mb-1 truncate">
-            {selectedDoctor?.name || 'Select Specialist'}
+            {loading ? 'Fetching specialists...' : (selectedDoctor?.name || (doctors.length === 0 ? 'None Available' : 'Select Specialist'))}
           </p>
           <p className="text-[10px] font-medium text-slate-400 leading-none truncate uppercase tracking-widest">
-            {selectedDoctor?.specialty || 'Loading...'}
+            {loading ? 'Please wait' : (selectedDoctor?.specialty || (doctors.length === 0 ? emptyMessage : 'Choose from list'))}
           </p>
         </div>
 

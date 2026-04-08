@@ -19,6 +19,8 @@ const DAYS = [
 ];
 
 const TIME_OPTIONS = [
+  { value: '07:00', label: '07:00 AM' },
+  { value: '08:00', label: '08:00 AM' },
   { value: '09:00', label: '09:00 AM' },
   { value: '10:00', label: '10:00 AM' },
   { value: '11:00', label: '11:00 AM' },
@@ -32,6 +34,7 @@ const TIME_OPTIONS = [
   { value: '19:00', label: '07:00 PM' },
   { value: '20:00', label: '08:00 PM' },
   { value: '21:00', label: '09:00 PM' },
+  { value: '22:00', label: '10:00 PM' },
 ];
 
 /**
@@ -55,15 +58,17 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
   // INITIALIZE FORM DATA FROM PROP
   useEffect(() => {
     if (isOpen && doctor) {
-      // Map backend schedules (with ranges) to local form format (linear rows)
-      const mappedSchedules = availability?.weekly_schedule?.map(s => {
-        const firstSlot = s.slots?.[0] || {};
-        return {
+      // Map backend schedules (with multiple slots per day) to local flat list of form rows
+      const mappedSchedules = availability?.weekly_schedule?.flatMap(s => {
+        return s.slots?.map(slot => ({
           day_of_week: s.day,
-          start_time: firstSlot.start_time?.substring(0, 5) || '09:00',
-          end_time: firstSlot.end_time?.substring(0, 5) || '17:00'
-        };
+          start_time: slot.start_time?.substring(0, 5) || '09:00',
+          end_time: slot.end_time?.substring(0, 5) || '17:00'
+        })) || [];
       }) || [{ day_of_week: 'MONDAY', start_time: '09:00', end_time: '17:00' }];
+
+      // Ensure at least one row exists if list is empty
+      const finalSchedules = mappedSchedules.length > 0 ? mappedSchedules : [{ day_of_week: 'MONDAY', start_time: '09:00', end_time: '17:00' }];
 
       setFormData({
         name: doctor.name || '',
@@ -71,7 +76,7 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
         specialty: doctor.specialty || '',
         description: doctor.description || '',
         is_active: doctor.status === 'ACTIVE',
-        schedules: mappedSchedules
+        schedules: finalSchedules
       });
     }
   }, [isOpen, doctor]);
@@ -151,15 +156,18 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
         description: formData.description?.trim() || null,
         is_active: formData.is_active,
         availability: {
-          weekly_schedule: formData.schedules.map(s => ({
-            day: s.day_of_week,
-            slots: [
-              {
+          weekly_schedule: Object.values(
+            formData.schedules.reduce((acc, s) => {
+              if (!acc[s.day_of_week]) {
+                acc[s.day_of_week] = { day: s.day_of_week, slots: [] };
+              }
+              acc[s.day_of_week].slots.push({
                 start_time: s.start_time,
                 end_time: s.end_time
-              }
-            ]
-          }))
+              });
+              return acc;
+            }, {})
+          )
         }
       };
 

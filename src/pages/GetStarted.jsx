@@ -59,7 +59,8 @@ const GetStarted = () => {
         navigate("/dashboard");
       }
     } catch (error) {
-      toast.error("Invalid credentials. Please try again.");
+      const message = error.response.data.errorMessage;
+      toast.error(message);
     } finally {
       setLoading(false);
     }

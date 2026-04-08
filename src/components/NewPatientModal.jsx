@@ -20,6 +20,16 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
     slot_end: '',
   });
 
+  // Helper to convert 24h to AM/PM
+  const formatTime = (time24) => {
+    if (!time24) return '--:--';
+    const [hours, minutes] = time24.split(':');
+    const h = parseInt(hours);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return `${h12}:${minutes} ${ampm}`;
+  };
+
   const [doctorSchedule, setDoctorSchedule] = useState([]);
   const [scheduleLoading, setScheduleLoading] = useState(false);
 
@@ -58,7 +68,17 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
     const dayOfWeek = dateObj.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
 
     const schedule = doctorSchedule.find(s => s.day === dayOfWeek);
-    return schedule?.slots || [];
+    const slots = schedule?.slots || [];
+
+    // 🔥 Filter if booking date is TODAY: Only show future slots
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (formData.date === todayStr) {
+      const now = new Date();
+      const currentHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      return slots.filter(slot => slot.start_time.substring(0, 5) >= currentHHMM);
+    }
+
+    return slots;
   };
 
   const availableSlots = getDaySlots();
@@ -352,7 +372,7 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
                         const end = slot.end_time.substring(0, 5);
                         return (
                           <option key={idx} value={`${start}-${end}`}>
-                            {start} to {end}
+                            {formatTime(start)} to {formatTime(end)}
                           </option>
                         )
                       })}

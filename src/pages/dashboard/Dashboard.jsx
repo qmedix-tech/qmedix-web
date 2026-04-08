@@ -17,6 +17,7 @@ const Dashboard = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
   const [doctors, setDoctors] = useState([]);
+  const [doctorsLoading, setDoctorsLoading] = useState(false);
   const [selectedDoctorId, setSelectedDoctorId] = useState('');
   const navigate = useNavigate();
 
@@ -42,34 +43,24 @@ const Dashboard = () => {
   const fetchDoctors = async (clinicId) => {
     if (!clinicId) return;
     try {
-      const { data } = await API.get(`/doctors/${clinicId}`);
-      const doctorList = Array.isArray(data) ? data : (data.doctors || []);
+      setDoctorsLoading(true);
+      const { data } = await API.get(`/doctors/${clinicId}`, { params: { today_only: true } });
+      const doctorsWithTokens = Array.isArray(data) ? data : (data.doctors || []);
+      const activeDoctors = doctorsWithTokens.filter(doc => doc.is_active);
 
-      // 1. Initially get active doctors
-      const activeDoctors = doctorList.filter(d => d.is_active === true);
+      setDoctors(activeDoctors);
 
-      // 2. Filter further: Only those with active tokens today
-      const filteredByTokens = await Promise.all(
-        activeDoctors.map(async (doc) => {
-          try {
-            const { data: tokens } = await API.get(`/queues/${clinicId}/${doc.doctor_id}/active-tokens`);
-            return (tokens && tokens.length > 0) ? doc : null;
-          } catch (err) {
-            console.error(`Failed to check tokens for doctor ${doc.doctor_id}:`, err);
-            return null;
-          }
-        })
-      );
-
-      const doctorsWithTokens = filteredByTokens.filter(d => d !== null);
-      setDoctors(doctorsWithTokens);
-
-      // Default to the first doctor if available
-      if (doctorsWithTokens.length > 0 && !selectedDoctorId) {
-        setSelectedDoctorId(doctorsWithTokens[0].doctor_id);
+      // Default to the first doctor if available or if current selection is no longer active
+      const isCurrentValid = activeDoctors.some(d => d.doctor_id === selectedDoctorId);
+      if (activeDoctors.length > 0 && (!selectedDoctorId || !isCurrentValid)) {
+        setSelectedDoctorId(activeDoctors[0].doctor_id);
+      } else if (activeDoctors.length === 0) {
+        setSelectedDoctorId('');
       }
     } catch (error) {
       console.error('Failed to fetch doctors:', error);
+    } finally {
+      setDoctorsLoading(false);
     }
   };
 
@@ -110,7 +101,7 @@ const Dashboard = () => {
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
 
         {/* HEADER */}
-        <header className="h-24 bg-white/40 backdrop-blur-xl border-b border-white/60 px-8 flex items-center justify-between sticky top-0 z-20">
+        <header className="h-20 flex-shrink-0 bg-white border-b border-slate-100 px-8 flex items-center justify-between sticky top-0 z-20">
           <div>
             <div className="flex items-center gap-2 mb-0.5">
               <Sparkles size={16} className="text-blue-600" />
@@ -128,7 +119,7 @@ const Dashboard = () => {
 
 
             {/* USER PROFILE */}
-            <div className="flex items-center gap-4 pl-8 border-l border-slate-200/60">
+            <div className="flex items-center gap-4">
               <div className="text-right hidden sm:block">
                 <p className="text-md font-bold text-slate-900 leading-tight">{user?.clinicName || "Clinic"}</p>
 
@@ -179,6 +170,8 @@ const Dashboard = () => {
                   doctors={doctors}
                   selectedId={selectedDoctorId}
                   onSelect={setSelectedDoctorId}
+                  loading={doctorsLoading}
+                  emptyMessage="No specialists active today"
                 />
               </div>
             </div>

@@ -1,6 +1,8 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ToastContainer, Slide, Zoom } from "react-toastify";
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { toast, ToastContainer, Slide, Zoom } from "react-toastify";
+import { requestForToken, onMessageListener } from './firebase';
+import API from './api/axios';
 import 'react-toastify/dist/ReactToastify.css';
 import Landing from './pages/Landing';
 import GetStarted from './pages/GetStarted';
@@ -16,6 +18,46 @@ import ProtectedRoute from './routes/ProtectedRoute';
 
 
 const App = () => {
+  useEffect(() => {
+    const setupFCM = async () => {
+      try {
+        const token = await requestForToken();
+        if (token) {
+          localStorage.setItem('fcm_token', token);
+
+          // Get clinicId from stored user and register token
+          const storedUser = localStorage.getItem('user');
+          if (storedUser) {
+            const { clinic_id } = JSON.parse(storedUser);
+            if (clinic_id) {
+              await API.post('/push-notification/register-fcm-token', {
+                clinicId: clinic_id,
+                fcmTokens: [token]
+              });
+            }
+          }
+        }
+      } catch (err) {
+        console.log('FCM setup failed:', err);
+      }
+    };
+
+    setupFCM();
+
+    // Listen for foreground multiple messages
+    onMessageListener((payload) => {
+      if (payload?.notification) {
+        toast.info(
+          <div className="flex flex-col gap-1">
+            <p className="font-bold">{payload.notification.title}</p>
+            <p className="text-xs">{payload.notification.body}</p>
+          </div>,
+          { icon: "🔔" }
+        );
+      }
+    });
+  }, []);
+
   return (
     <Router>
       <Routes>

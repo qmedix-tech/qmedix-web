@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CalendarDays, Phone, Inbox, Loader2, Sparkles, Clock, CalendarClock } from 'lucide-react';
+import { Phone, Inbox, Loader2, Sparkles, Clock, CalendarClock, Calendar } from 'lucide-react';
 import { toast } from 'react-toastify';
 import API from '../api/axios';
 import Sidebar from '../components/Sidebar';
@@ -10,6 +10,17 @@ const UpcomingBookings = () => {
   const [selectedDoctorId, setSelectedDoctorId] = useState('');
   const [allBookings, setAllBookings] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [doctorsLoading, setDoctorsLoading] = useState(false);
+
+  // Helper to convert 24h to AM/PM
+  const formatTime = (time24) => {
+    if (!time24) return '--:--';
+    const [hours, minutes] = time24.split(':');
+    const h = parseInt(hours);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return `${h12}:${minutes} ${ampm}`;
+  };
 
   useEffect(() => {
     fetchInitialData();
@@ -18,6 +29,7 @@ const UpcomingBookings = () => {
   const fetchInitialData = async () => {
     try {
       setLoading(true);
+      setDoctorsLoading(true);
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const clinicId = user.clinic_id;
 
@@ -42,6 +54,7 @@ const UpcomingBookings = () => {
       toast.error('Failed to load booking schedule');
     } finally {
       setLoading(false);
+      setDoctorsLoading(false);
     }
   };
 
@@ -49,8 +62,11 @@ const UpcomingBookings = () => {
 
   const filteredBookings = allBookings.filter(b => {
     if (!selectedDoctorInfo) return false;
-    // Strict match on doctor name as returned by API
-    return b.doctor_name === selectedDoctorInfo.name;
+
+    // Filter by doctor name
+    const matchesDoctor = b.doctor_name === selectedDoctorInfo.name;
+
+    return matchesDoctor;
   });
 
   return (
@@ -82,11 +98,12 @@ const UpcomingBookings = () => {
         <div className="px-8 py-6 bg-white/40 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4 w-full md:w-auto">
             {/* SPECIALIST SELECTOR */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <SpecialistSelect
                 doctors={doctors}
                 selectedId={selectedDoctorId}
                 onSelect={setSelectedDoctorId}
+                loading={doctorsLoading}
               />
             </div>
           </div>
@@ -109,7 +126,7 @@ const UpcomingBookings = () => {
                 <span>Patient Name</span>
                 <span>Contact</span>
                 <span>Scheduled Date</span>
-                <span>Arrival Window</span>
+                <span>Slot Time</span>
               </div>
 
               {/* TABLE BODY */}
@@ -148,14 +165,14 @@ const UpcomingBookings = () => {
                         </div>
                         <div>
                           <p className="text-sm font-medium text-slate-700 flex items-center gap-1.5">
-                            <CalendarDays size={14} className="text-blue-500" />
+                            <Calendar size={14} className="text-blue-500" />
                             {new Date(booking.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           </p>
                         </div>
                         <div>
                           <p className="text-sm text-slate-700 font-mono font-bold flex items-center gap-1.5">
                             <Clock size={14} className="text-blue-500" />
-                            {booking.booked_slot_start?.substring(0, 5) || '--:--'}
+                            {formatTime(booking.booked_slot_start?.substring(0, 5))}
                           </p>
                         </div>
                       </div>

@@ -6,9 +6,9 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import Navbar from '../components/Navbar';
 import { fetchAddressFromPincode } from '../services/pincodeService';
-import { 
-  Save, Clock, Building2, MapPin, Phone, Hash, Globe, 
-  Sparkles, CheckCircle2, ChevronRight, Loader2, ShieldCheck 
+import {
+  Save, Clock, Building2, MapPin, Phone, Hash, Globe,
+  Sparkles, CheckCircle2, ChevronRight, ChevronDown, Loader2, ShieldCheck
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -68,7 +68,7 @@ const Onboarding = () => {
           city: results[0].district,
           state: results[0].state
         }));
-        toast.info(`Address found for ${formData.zipcode}`);
+        // toast.info(`Address found for ${formData.zipcode}`);
       }
     } catch (err) {
       toast.error("Invalid pincode");
@@ -162,9 +162,9 @@ const Onboarding = () => {
           {/* FORM CARD */}
           <div className="bg-white border border-slate-100 rounded-[48px] shadow-2xl shadow-slate-200/50 overflow-hidden">
             <div className="h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
-            
+
             <form onSubmit={handleSubmit} className="p-8 md:p-14 space-y-12">
-              
+
               {/* SECTION: BASIC INFO */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-12 border-b border-slate-50">
                 <div className="lg:col-span-4">
@@ -176,9 +176,9 @@ const Onboarding = () => {
                   </div>
                   <p className="text-xs font-medium text-slate-400 leading-relaxed">Basic information about your facility.</p>
                 </div>
-                
+
                 <div className="lg:col-span-8 space-y-8">
-                  <Input 
+                  <Input
                     label="Official Clinic Name"
                     name="name"
                     placeholder="e.g. LifeCare Wellness Hospital"
@@ -189,7 +189,7 @@ const Onboarding = () => {
                     required
                   />
 
-                  <Input 
+                  <Input
                     label="Contact Phone"
                     name="phone"
                     type="tel"
@@ -216,7 +216,7 @@ const Onboarding = () => {
                   </div>
                   <p className="text-xs font-medium text-slate-400 leading-relaxed">Helps patients find you easily.</p>
                 </div>
-                
+
                 <div className="lg:col-span-8 space-y-8">
                   <div className="space-y-2">
                     <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Street Address</label>
@@ -238,7 +238,7 @@ const Onboarding = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <Input 
+                    <Input
                       label="Pincode"
                       name="zipcode"
                       placeholder="400001"
@@ -274,23 +274,28 @@ const Onboarding = () => {
                   </div>
                   <p className="text-xs font-medium text-slate-400 leading-relaxed">Queue management settings.</p>
                 </div>
-                
+
                 <div className="lg:col-span-8 space-y-10">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-2 md:col-span-2">
                       <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Avg Service Time</label>
-                      <select
-                        name="avg_service_minutes"
-                        value={formData.avg_service_minutes}
-                        onChange={handleInputChange}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer transition-all duration-200"
-                      >
-                        {[5, 10, 15, 20, 30, 45, 60].map(m => (
-                          <option key={m} value={m}>
-                            {m} Minutes per patient
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative group/select">
+                        <select
+                          name="avg_service_minutes"
+                          value={formData.avg_service_minutes}
+                          onChange={handleInputChange}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer transition-all duration-200"
+                        >
+                          {[5, 10, 15, 20, 30, 45, 60].map(m => (
+                            <option key={m} value={m}>
+                              {m} Minutes per patient
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none text-slate-400 group-hover/select:text-blue-500 transition-colors">
+                          <ChevronDown size={18} strokeWidth={2.5} />
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -332,7 +337,7 @@ const Onboarding = () => {
 
             </form>
           </div>
-          
+
           <div className="mt-12 text-center text-slate-400 font-bold text-[11px] uppercase tracking-widest mb-10">
             Log out to switch account
           </div>

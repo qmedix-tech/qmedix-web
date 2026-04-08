@@ -13,6 +13,16 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess, onUpdateSuccess }) =>
   const [availability, setAvailability] = useState(null);
   const [error, setError] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // Helper to convert 24h to AM/PM
+  const formatTime = (time24) => {
+    if (!time24) return '--:--';
+    const [hours, minutes] = time24.split(':');
+    const h = parseInt(hours);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return `${h12}:${minutes} ${ampm}`;
+  };
   const [activeTab, setActiveTab] = useState('Schedule');
 
   useEffect(() => {
@@ -138,8 +148,8 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess, onUpdateSuccess }) =>
                            <h4 className="font-bold text-sm text-[#222E3C] w-40 capitalize tracking-wide">{schedule.day.toLowerCase()}</h4>
                            <div className="flex-1 flex flex-wrap gap-2">
                              {schedule.slots.map((slot, sIdx) => (
-                               <span key={sIdx} className="text-[13px] font-medium text-slate-500">
-                                 {slot.start_time.substring(0, 5)} - {slot.end_time.substring(0, 5)}
+                               <span key={sIdx} className="text-[13px] font-bold text-slate-500 bg-slate-50 px-2 py-1 rounded border border-slate-100">
+                                 {formatTime(slot.start_time.substring(0, 5))} - {formatTime(slot.end_time.substring(0, 5))}
                                </span>
                              ))}
                            </div>

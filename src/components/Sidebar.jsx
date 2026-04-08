@@ -4,10 +4,26 @@ import {
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useRef, useEffect } from 'react';
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const navRef = useRef(null);
+
+  // Restore scroll position on mount
+  useEffect(() => {
+    const savedPosition = localStorage.getItem('sidebar_scroll_pos');
+    if (savedPosition && navRef.current) {
+      navRef.current.scrollTop = parseInt(savedPosition, 10);
+    }
+  }, []);
+
+  const handleScroll = () => {
+    if (navRef.current) {
+      localStorage.setItem('sidebar_scroll_pos', navRef.current.scrollTop);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.clear();
@@ -16,12 +32,12 @@ const Sidebar = () => {
 
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-    { icon: BarChart3, label: 'Analytics', path: '/dashboard/analytics' },
-    { icon: Stethoscope, label: 'Doctors', path: '/dashboard/doctors' },
     { icon: Users2, label: 'Patients', path: '/dashboard/patientlist' },
     { icon: CalendarClock, label: 'Upcoming', path: '/dashboard/upcoming' },
-    { icon: Building2, label: 'Clinic', path: '/dashboard/clinic' },
+    { icon: Stethoscope, label: 'Doctors', path: '/dashboard/doctors' },
+    { icon: BarChart3, label: 'Analytics', path: '/dashboard/analytics' },
     { icon: QrCode, label: 'QR Code', path: '/dashboard/qrcode' },
+    { icon: Building2, label: 'Clinic', path: '/dashboard/clinic' },
   ];
 
   return (
@@ -46,7 +62,11 @@ const Sidebar = () => {
       </div>
 
       {/* NAVIGATION */}
-      <nav className="flex-1 px-4 space-y-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <nav 
+        ref={navRef}
+        onScroll={handleScroll}
+        className="flex-1 px-4 space-y-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+      >
         <div className="mb-4 px-2">
           <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">Main Menu</span>
         </div>
@@ -60,12 +80,26 @@ const Sidebar = () => {
               whileHover={{ x: 4 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center justify-between group px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${isActive
-                  ? "bg-slate-700/50 text-white"
-                  : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
+              className={`w-full flex items-center justify-between group px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative ${isActive
+                  ? "text-white"
+                  : "text-slate-400 hover:text-white"
                 }`}
             >
-              <div className="flex items-center gap-3">
+              {/* ANIMATED BACKGROUND PILL */}
+              {isActive && (
+                <motion.div 
+                  layoutId="active-highlight"
+                  className="absolute inset-0 bg-slate-700/50 rounded-xl"
+                  initial={false}
+                  transition={{
+                    type: "spring",
+                    stiffness: 500,
+                    damping: 35
+                  }}
+                />
+              )}
+
+              <div className="flex items-center gap-3 relative z-10">
                 <div className={`p-1.5 rounded-lg transition-colors ${isActive
                     ? "bg-slate-700 text-white"
                     : "bg-transparent group-hover:bg-slate-700 group-hover:text-white"
@@ -74,8 +108,12 @@ const Sidebar = () => {
                 </div>
                 {item.label}
               </div>
+              
               {isActive && (
-                <motion.div layoutId="active-pill">
+                <motion.div 
+                  layoutId="active-chevron"
+                  className="relative z-10"
+                >
                   <ChevronRight size={14} className="text-slate-400" />
                 </motion.div>
               )}

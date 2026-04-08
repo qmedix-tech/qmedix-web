@@ -170,12 +170,22 @@ const Doctors = () => {
               {/* TABLE */}
               <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
                 {/* HEADER */}
-                <div className="grid grid-cols-[2fr_1.2fr_1.5fr_0.8fr_1fr] px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 bg-slate-50/50">
-                  <span>Doctor</span>
-                  <span>Contact</span>
+                <div className="grid grid-cols-[2fr_1.2fr_1.5fr_0.8fr_1fr] px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 bg-slate-50/50 items-center">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 flex-shrink-0" />
+                    <span>Doctor</span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-[14px] flex-shrink-0" />
+                    <span>Contact</span>
+                  </div>
+
                   <span>Specialty</span>
+                  
                   <span>Status</span>
-                  <span className='pl-14'>Action</span>
+                  
+                  <span className="text-right pr-4">Action</span>
                 </div>
 
                 <div className="divide-y divide-slate-50 relative">
