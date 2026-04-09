@@ -72,7 +72,7 @@ const DoctorProfileUpload = ({ doctorId, currentDpUrl, onUpdateSuccess }) => {
       }
     } catch (error) {
       console.error('Upload failed:', error);
-      const msg = error.response?.data?.message || 'Failed to upload profile picture';
+      const msg = error.response?.data?.errorMessage || 'Failed to upload profile picture';
       toast.error(msg);
     } finally {
       setIsUploading(false);

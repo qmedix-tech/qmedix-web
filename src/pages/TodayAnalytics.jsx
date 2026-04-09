@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Users, CheckCircle2, XCircle, SkipForward, 
-  Clock, TrendingUp, Calendar, ArrowLeft, RefreshCcw, Sparkles, Activity, PieChart, BarChart3, ChevronRight, Zap
+  Clock, RefreshCcw, Sparkles, Activity, PieChart, ChevronRight, Zap, TrendingUp
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -34,7 +34,7 @@ const TodayAnalytics = () => {
       setError(null);
     } catch (err) {
       console.error('Failed to fetch analytics:', err);
-      setError('Could not load analytics. Please try again later.');
+      setError(err.response?.data?.errorMessage || 'Could not load analytics. Please try again later.');
     } finally {
       setLoading(false);
     }

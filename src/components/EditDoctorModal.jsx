@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, Loader2, Save, Stethoscope, Phone, Info, CalendarDays, CheckCircle2, Clock, Sparkles, ChevronDown } from 'lucide-react';
+import { X, Plus, Trash2, Loader2, Save, Stethoscope, Phone, Info, CalendarDays, CheckCircle2, Clock, Sparkles, ChevronDown, IndianRupee } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import API from '../api/axios';
@@ -52,6 +52,7 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
     specialty: '',
     description: '',
     is_active: true,
+    consultation_fee: '',
     schedules: []
   });
 
@@ -76,6 +77,7 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
         specialty: doctor.specialty || '',
         description: doctor.description || '',
         is_active: doctor.is_active,
+        consultation_fee: doctor.consultation_fee || '',
         schedules: finalSchedules
       });
     }
@@ -155,6 +157,7 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
         specialty: formData.specialty.trim(),
         description: formData.description?.trim() || null,
         is_active: formData.is_active,
+        consultation_fee: Number(formData.consultation_fee),
         availability: {
           weekly_schedule: Object.values(
             formData.schedules.reduce((acc, s) => {
@@ -181,7 +184,7 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
       onClose();
     } catch (error) {
       console.error('Update failed:', error);
-      const errorMessage = error.response?.data?.errorMessage || error.response?.data?.message || 'Failed to update specialist profile.';
+      const errorMessage = error.response?.data?.errorMessage || 'Failed to update specialist profile.';
       toast.error(errorMessage);
     } finally {
       setIsUpdating(false);
@@ -208,7 +211,7 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
       onClose();
     } catch (error) {
       console.error('Delete failed:', error);
-      const errorMessage = error.response?.data?.errorMessage || error.response?.data?.message || 'Failed to delete specialist.';
+      const errorMessage = error.response?.data?.errorMessage || 'Failed to delete specialist.';
       toast.error(errorMessage);
     } finally {
       setIsDeleting(false);
@@ -273,85 +276,112 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
             <form onSubmit={handleSubmit} className="space-y-12">
 
               {/* IDENTITY SECTION */}
-              <div className="grid md:grid-cols-2 gap-8">
-                <Input
-                  label="Full Name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="Dr. Name"
-                  required
-                />
-
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Contact Phone</label>
-                  <div className="relative group/input">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
-                      <Phone size={18} />
-                    </div>
-                    <div className="absolute inset-y-0 left-11 flex items-center">
-                      <span className="text-sm font-bold text-slate-400 border-r border-slate-200 pr-2 mr-2 leading-none">
-                        +91
-                      </span>
-                    </div>
-                    <input
-                      name="phone"
-                      type="tel"
-                      maxLength={10}
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-[88px] pr-4 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
-                      required
-                    />
-                  </div>
+              <div className="space-y-8">
+                {/* Row 1: Name (Full Width) */}
+                <div className="w-full">
+                  <Input
+                    label="Full Name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Dr. Name"
+                    required
+                  />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Primary Specialty</label>
-                  <div className="relative group/input">
-                    <select
-                      name="specialty"
-                      value={formData.specialty}
-                      onChange={handleInputChange}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer"
-                      required
-                    >
-                      <option value="" disabled>Select Specialty</option>
-                      <option value="General Practice">General Practice</option>
-                      <option value="Cardiology">Cardiology</option>
-                      <option value="Dermatology">Dermatology</option>
-                      <option value="Orthopedic">Orthopedic</option>
-                      <option value="Pediatrics">Pediatrics</option>
-                      <option value="Gynecology">Gynecology</option>
-                      <option value="ENT">ENT</option>
-                      <option value="Neurology">Neurology</option>
-                      <option value="Dentistry">Dentistry</option>
-                      <option value="Ophthalmology">Ophthalmology</option>
-                      <option value="Psychiatry">Psychiatry</option>
-                      <option value="Physiotherapy">Physiotherapy</option>
-                    </select>
-                    <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
-                      <ChevronDown size={14} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Operational Status</label>
-                  <div
-                    onClick={() => setFormData(prev => ({ ...prev, is_active: !prev.is_active }))}
-                    className="group/toggle flex items-center justify-between w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 cursor-pointer hover:border-blue-200 transition-all shadow-sm active:scale-[0.98] transition-transform"
-                  >
-                    <span className={`text-sm font-bold transition-colors ${formData.is_active ? 'text-emerald-600' : 'text-slate-500'}`}>
-                      {formData.is_active ? 'Active & Available' : 'Currently Offline'}
-                    </span>
-                    <div className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${formData.is_active ? 'bg-emerald-500' : 'bg-slate-300'}`}>
-                      <motion.div
-                        initial={false}
-                        animate={{ x: formData.is_active ? 24 : 0 }}
-                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                        className="w-4 h-4 bg-white rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.1)]"
+                {/* Row 2: Contact & Specialty */}
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Contact Phone</label>
+                    <div className="relative group/input">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+                        <Phone size={18} />
+                      </div>
+                      <div className="absolute inset-y-0 left-11 flex items-center">
+                        <span className="text-sm font-bold text-slate-400 border-r border-slate-200 pr-2 mr-2 leading-none">
+                          +91
+                        </span>
+                      </div>
+                      <input
+                        name="phone"
+                        type="tel"
+                        maxLength={10}
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-[88px] pr-4 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                        required
                       />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Primary Specialty</label>
+                    <div className="relative group/input">
+                      <select
+                        name="specialty"
+                        value={formData.specialty}
+                        onChange={handleInputChange}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer"
+                        required
+                      >
+                        <option value="" disabled>Select Specialty</option>
+                        <option value="General Practice">General Practice</option>
+                        <option value="Cardiology">Cardiology</option>
+                        <option value="Dermatology">Dermatology</option>
+                        <option value="Orthopedic">Orthopedic</option>
+                        <option value="Pediatrics">Pediatrics</option>
+                        <option value="Gynecology">Gynecology</option>
+                        <option value="ENT">ENT</option>
+                        <option value="Neurology">Neurology</option>
+                        <option value="Dentistry">Dentistry</option>
+                        <option value="Ophthalmology">Ophthalmology</option>
+                        <option value="Psychiatry">Psychiatry</option>
+                        <option value="Physiotherapy">Physiotherapy</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
+                        <ChevronDown size={14} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 3: Fee & Status */}
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Consultation Fee</label>
+                    <div className="relative group/input">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+                        <IndianRupee size={18} />
+                      </div>
+                      <input
+                        name="consultation_fee"
+                        type="number"
+                        min="0"
+                        value={formData.consultation_fee}
+                        onChange={handleInputChange}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Operational Status</label>
+                    <div
+                      onClick={() => setFormData(prev => ({ ...prev, is_active: !prev.is_active }))}
+                      className="group/toggle flex items-center justify-between w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 cursor-pointer hover:border-blue-200 transition-all shadow-sm active:scale-[0.98] transition-transform"
+                    >
+                      <span className={`text-sm font-bold transition-colors ${formData.is_active ? 'text-emerald-600' : 'text-slate-500'}`}>
+                        {formData.is_active ? 'Active & Available' : 'Currently Offline'}
+                      </span>
+                      <div className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${formData.is_active ? 'bg-emerald-500' : 'bg-slate-300'}`}>
+                        <motion.div
+                          initial={false}
+                          animate={{ x: formData.is_active ? 24 : 0 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                          className="w-4 h-4 bg-white rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.1)]"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

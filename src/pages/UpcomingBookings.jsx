@@ -51,7 +51,7 @@ const UpcomingBookings = () => {
 
     } catch (error) {
       console.error('Failed to load upcoming bookings:', error);
-      toast.error('Failed to load booking schedule');
+      toast.error(error.response?.data?.errorMessage || 'Failed to load booking schedule');
     } finally {
       setLoading(false);
       setDoctorsLoading(false);

@@ -67,7 +67,7 @@ const Doctors = () => {
       const doctorList = Array.isArray(data) ? data : (data.doctors || []);
       setDoctors(doctorList);
     } catch (error) {
-      toast.error('Failed to load doctors');
+      toast.error(error.response?.data?.errorMessage || 'Failed to load doctors');
     } finally {
       setLoading(false);
     }
@@ -134,7 +134,7 @@ const Doctors = () => {
                         setSelectedDoctor({ ...selectedDoctor, is_active: newStatus });
                         fetchDoctors(searchQuery, statusFilter);
                       } catch (error) {
-                        toast.error('Failed to update status');
+                        toast.error(error.response?.data?.errorMessage || 'Failed to update status');
                       }
                     }}
                     className={`w-11 h-6 rounded-full p-1 transition-colors duration-300 flex items-center ${selectedDoctor.is_active ? 'bg-emerald-500' : 'bg-slate-300'}`}

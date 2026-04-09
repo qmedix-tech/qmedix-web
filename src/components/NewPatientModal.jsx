@@ -75,7 +75,7 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
     if (formData.date === todayStr) {
       const now = new Date();
       const currentHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-      return slots.filter(slot => slot.start_time.substring(0, 5) >= currentHHMM);
+      return slots.filter(slot => slot.end_time.substring(0, 5) >= currentHHMM);
     }
 
     return slots;
@@ -206,7 +206,6 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
 
       const errorMessage =
         error.response?.data?.errorMessage ||
-        error.response?.data?.message ||
         'Failed to register patient.';
 
       toast.error(errorMessage);

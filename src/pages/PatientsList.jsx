@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Users2, Search, Filter, Phone, Calendar, ArrowRight,
-  Loader2, MoreVertical, CreditCard, UserPlus, ChevronRight, Sparkles, Inbox, X, CalendarDays
+  Users2, Search, Filter, Phone, Calendar,
+  Loader2, UserPlus, Inbox, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
@@ -46,7 +46,7 @@ const PatientsList = () => {
       const patientList = Array.isArray(data) ? data : (data.patients || data.data || []);
       setPatients(patientList);
     } catch (error) {
-      toast.error('Failed to load patients');
+      toast.error(error.response?.data?.errorMessage || 'Failed to load patients');
     } finally {
       setLoading(false);
     }
@@ -59,7 +59,7 @@ const PatientsList = () => {
       const patientList = Array.isArray(data) ? data : (data.patients || data.data || []);
       setPatients(patientList);
     } catch (error) {
-      toast.error('Search failed');
+      toast.error(error.response?.data?.errorMessage || 'Search failed');
     } finally {
       setLoading(false);
     }

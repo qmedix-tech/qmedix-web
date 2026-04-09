@@ -99,7 +99,7 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
       setActiveTokens(sortedTokens);
     } catch (error) {
       console.error('Failed to fetch active tokens:', error);
-      const msg = error.response?.data?.errorMessage || error.response?.data?.message || 'Failed to fetch queue';
+      const msg = error.response?.data?.errorMessage || 'Failed to fetch queue';
       toast.error(msg);
     } finally {
       setLoading(false);

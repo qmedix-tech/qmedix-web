@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { toast, ToastContainer, Slide, Zoom } from "react-toastify";
+import { toast, ToastContainer, Slide } from "react-toastify";
 import { requestForToken, onMessageListener } from './firebase';
 import API from './api/axios';
 import 'react-toastify/dist/ReactToastify.css';
@@ -14,6 +14,7 @@ import ClinicProfile from './pages/ClinicProfile';
 import TodayAnalytics from './pages/TodayAnalytics';
 import Doctors from './pages/Doctors';
 import UpcomingBookings from './pages/UpcomingBookings';
+import Payments from './pages/Payments';
 import ProtectedRoute from './routes/ProtectedRoute';
 
 
@@ -72,6 +73,7 @@ const App = () => {
           <Route path="/dashboard/analytics" element={<TodayAnalytics />} />
           <Route path="/dashboard/doctors" element={<Doctors />} />
           <Route path="/dashboard/upcoming" element={<UpcomingBookings />} />
+          <Route path="/dashboard/payments" element={<Payments />} />
         </Route>
       </Routes>
       <ToastContainer

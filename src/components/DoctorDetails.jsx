@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Stethoscope, Clock, Pencil, Trash2, CalendarDays, Loader2, XCircle, ArrowLeft, PackageOpen
+import { 
+  Stethoscope, Clock, Pencil, Trash2, XCircle, PackageOpen, IndianRupee
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import API from '../api/axios';
@@ -37,7 +37,7 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess, onUpdateSuccess, onLo
       if (onLoad) onLoad(detailData.doctor);
       setError(null);
     } catch (err) {
-      setError('Error loading doctor');
+      setError(err.response?.data?.errorMessage || 'Error loading doctor');
     } finally {
       setLoading(false);
     }
@@ -48,8 +48,6 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess, onUpdateSuccess, onLo
     if (onUpdateSuccess) onUpdateSuccess(); // Notify parent to refresh list
   };
 
-
-
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to deactivate and delete this doctor?")) return;
     try {
@@ -57,7 +55,7 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess, onUpdateSuccess, onLo
       toast.success('Doctor deleted successfully');
       onDeleteSuccess();
     } catch (err) {
-      toast.error("Failed to delete doctor.");
+      toast.error(err.response?.data?.errorMessage || "Failed to delete doctor.");
     }
   };
 
@@ -80,9 +78,9 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess, onUpdateSuccess, onLo
 
   return (
     <>
-      <div className="flex flex-col md:flex-row gap-8 w-full items-start">
+      <div className="flex flex-col md:flex-row gap-8 w-full md:items-stretch">
         {/* LEFT CARD - Profile Info */}
-        <div className="w-full md:w-[350px] bg-white rounded-2xl shadow-sm p-8 flex flex-col shrink-0 border border-slate-100">
+        <div className="w-full md:w-[380px] bg-white rounded-3xl shadow-sm p-8 flex flex-col shrink-0 border border-slate-100/80">
           <div className="flex flex-col items-center text-center">
             <div className="w-32 h-32 rounded-full overflow-hidden mb-6 bg-gradient-to-br from-slate-50 to-slate-100 border-4 border-white shadow-md relative flex items-center justify-center">
               {doctorInfo.dp_url && doctorInfo.dp_url.startsWith('http') ? (
@@ -91,50 +89,65 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess, onUpdateSuccess, onLo
                 <Stethoscope size={40} className="text-slate-300" />
               )}
             </div>
-            <h2 className="text-2xl font-bold text-slate-800 tracking-tight">{doctorInfo.name}</h2>
-            <p className="text-sm font-bold text-blue-600 uppercase tracking-widest mt-2 px-3 py-1 bg-blue-50 rounded-full inline-block">
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">{doctorInfo.name}</h2>
+            <p className="text-sm font-black text-blue-600 uppercase tracking-[0.2em] mt-3 px-4 py-1.5 bg-blue-50/50 rounded-xl inline-block border border-blue-100/50">
               {doctorInfo.specialty}
             </p>
           </div>
 
-          <div className="mt-10 space-y-6">
-            <div className="p-4 bg-slate-50/50 rounded-xl border border-slate-100/50">
-              <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Contact Number</p>
-              <p className="text-sm text-slate-700 font-bold tracking-tight">{doctorInfo.phone}</p>
-            </div>
-            <div>
-              <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Clinical Expertise</p>
-              <p className="text-sm text-slate-500 leading-relaxed italic border-l-4 border-slate-200 pl-4">
-                {doctorInfo.description || 'No description provided.'}
-              </p>
-            </div>
-          </div>
+          <div className="mt-10 flex-1 flex flex-col justify-between space-y-8">
+            <div className="space-y-6">
+              {/* Info Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100/50">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Contact</p>
+                  <p className="text-sm text-slate-700 font-bold tracking-tight truncate">{doctorInfo.phone}</p>
+                </div>
+                <div className="p-4 bg-emerald-50/80 rounded-2xl border border-emerald-100/50">
+                  <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1.5">Fee</p>
+                  <div className="flex items-center gap-2">
+                    <IndianRupee size={14} className="text-emerald-600" />
+                    <p className="text-base text-emerald-700 font-black tracking-tight">
+                      {doctorInfo.consultation_fee || '0'}
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-          <div className="mt-10 flex items-center gap-3">
-            <button 
-              onClick={handleDelete} 
-              className="px-4 py-3 bg-rose-50 text-rose-600 font-bold text-xs rounded-xl hover:bg-rose-100 transition-all h-11 flex items-center justify-center"
-              title="Delete Specialist"
-            >
-              <Trash2 size={16} />
-            </button>
-            <button 
-              onClick={() => setIsEditModalOpen(true)} 
-              className="flex-1 py-3 bg-[#1E293B] text-white font-bold text-xs rounded-xl shadow-sm flex items-center justify-center gap-2 hover:bg-slate-800 transition-all uppercase tracking-wider h-11"
-            >
-              <Pencil size={14} /> Edit profile
-            </button>
+              <div className="bg-slate-50/30 p-5 rounded-3xl border border-slate-100/30">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Professional Overview</p>
+                <p className="text-sm text-slate-500 leading-relaxed italic border-l-2 border-slate-200 pl-4 py-0.5">
+                  {doctorInfo.description || 'No description provided.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={handleDelete} 
+                className="w-14 py-3.5 bg-rose-50 text-rose-600 font-bold text-xs rounded-2xl hover:bg-rose-100 transition-all flex items-center justify-center border border-rose-100/50 active:scale-95"
+                title="Delete Specialist"
+              >
+                <Trash2 size={18} />
+              </button>
+              <button 
+                onClick={() => setIsEditModalOpen(true)} 
+                className="flex-1 py-3.5 bg-[#1E293B] text-white font-black text-[11px] rounded-2xl shadow-lg shadow-slate-200/50 flex items-center justify-center gap-2 hover:bg-slate-800 transition-all uppercase tracking-[0.2em] border border-slate-900 active:scale-[0.98]"
+              >
+                <Pencil size={14} /> Edit profile
+              </button>
+            </div>
           </div>
         </div>
 
         {/* RIGHT CARD - Allocated Shifts Only */}
-        <div className="flex-1 w-full">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden min-h-[500px]">
-            <div className="p-8">
-                  <div className="mb-3 flex items-center justify-between">
+        <div className="flex-1 w-full flex">
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden flex-1 flex flex-col">
+            <div className="p-8 flex-1 flex flex-col">
+              <div className="mb-8 flex items-center justify-between">
                 <div>
                   <h3 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                    <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
                       <Clock size={20} />
                     </div>
                     Allocated Shifts
@@ -162,11 +175,11 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess, onUpdateSuccess, onLo
                   ))}
                 </div>
               ) : (
-                <div className="h-full flex flex-col items-center justify-center py-20">
-                  <div className="p-6 bg-slate-50 rounded-full mb-6">
+                <div className="flex-1 flex flex-col items-center justify-center py-20 bg-slate-50/30 rounded-[32px] border border-dashed border-slate-200">
+                  <div className="p-6 bg-white rounded-full mb-6 shadow-sm">
                     <PackageOpen size={60} strokeWidth={1} className="text-slate-300" />
                   </div>
-                  <p className="text-slate-400 text-sm font-bold tracking-widest uppercase">No Shifts Assigned</p>
+                  <p className="text-slate-400 text-[11px] font-black tracking-[0.2em] uppercase">No Shifts Assigned</p>
                 </div>
               )}
             </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Building2, Save, MapPin, Phone, Clock,
-  CheckCircle2, Loader2, Sparkles, ChevronRight,
+  CheckCircle2, Loader2,
   ShieldCheck, Globe, Hash, Info, User, ChevronDown
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -57,7 +57,7 @@ const ClinicProfile = () => {
       }
     } catch (error) {
       console.error('Failed to fetch clinic details:', error);
-      toast.error('Failed to load clinic profile.');
+      toast.error(error.response?.data?.errorMessage || 'Failed to load clinic profile.');
     } finally {
       setInitialLoading(false);
     }
@@ -130,8 +130,7 @@ const ClinicProfile = () => {
       }, 1500);
 
     } catch (error) {
-      const message = error.response?.data?.errorMessage || 'Failed to update profile.';
-      toast.error(message);
+      toast.error(error.response?.data?.errorMessage || 'Failed to update profile.');
     } finally {
       setLoading(false);
     }

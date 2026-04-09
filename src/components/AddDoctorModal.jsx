@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Plus, Trash2, Loader2, Save, Stethoscope, Phone, Info, CalendarDays, CheckCircle2, Clock, Sparkles, ChevronDown } from 'lucide-react';
+import { X, Plus, Trash2, Loader2, Save, Stethoscope, Phone, Info, CalendarDays, CheckCircle2, Clock, Sparkles, ChevronDown, IndianRupee } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import API from '../api/axios';
@@ -41,6 +41,7 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
     specialty: '',
     description: '',
     is_active: true,
+    consultation_fee: '',
     schedules: [
       { day_of_week: 'MONDAY', start_time: '09:00', end_time: '17:00' }
     ]
@@ -108,8 +109,8 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.phone || !formData.specialty) {
-      toast.error('Please fill in required fields');
+    if (!formData.name || !formData.phone || !formData.specialty || formData.consultation_fee === '') {
+      toast.error('Please fill in required fields including consultation fee');
       return;
     }
 
@@ -136,6 +137,7 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
         specialty: formData.specialty.trim(),
         description: formData.description?.trim() || null,
         is_active: formData.is_active,
+        consultation_fee: Number(formData.consultation_fee),
         availability: {
           weekly_schedule: formData.schedules.map(s => ({
             day: s.day_of_week,
@@ -165,6 +167,7 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
         specialty: '',
         description: '',
         is_active: true,
+        consultation_fee: '',
         schedules: [{ day_of_week: 'MONDAY', start_time: '09:00', end_time: '17:00' }]
       });
 
@@ -172,7 +175,6 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
       console.error('Failed to add doctor:', error);
       const errorMessage =
         error.response?.data?.errorMessage ||
-        error.response?.data?.message ||
         'Failed to register doctor.';
       toast.error(errorMessage);
     } finally {
@@ -226,69 +228,96 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
           {/* FORM BODY */}
           <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar p-10 space-y-10">
             {/* SECTION: IDENTITY */}
-            <div className="grid md:grid-cols-2 gap-8">
-              <Input
-                label="Full Name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="e.g. Dr. Sarah Jenkins"
-                required
-              />
+            <div className="space-y-8">
+              {/* Row 1: Name (Full Width) */}
+              <div className="w-full">
+                <Input
+                  label="Full Name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="e.g. Dr. Sarah Jenkins"
+                  required
+                />
+              </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Contact Phone</label>
-                <div className="relative group/input">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within/input:text-blue-500 transition-colors">
-                    <Phone size={18} />
+              {/* Row 2: Contact & Specialty */}
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Contact Phone</label>
+                  <div className="relative group/input">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within/input:text-blue-500 transition-colors">
+                      <Phone size={18} />
+                    </div>
+                    <div className="absolute inset-y-0 left-11 flex items-center pointer-events-none">
+                      <span className="text-sm font-bold text-slate-400 border-r border-slate-200 pr-2 mr-2 leading-none">
+                        +91
+                      </span>
+                    </div>
+                    <input
+                      name="phone"
+                      type="tel"
+                      maxLength={10}
+                      placeholder="9876543210"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-[88px] pr-4 py-4 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all duration-200"
+                      required
+                    />
                   </div>
-                  <div className="absolute inset-y-0 left-11 flex items-center pointer-events-none">
-                    <span className="text-sm font-bold text-slate-400 border-r border-slate-200 pr-2 mr-2 leading-none">
-                      +91
-                    </span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Primary Specialty</label>
+                  <div className="relative group/input">
+                    <select
+                      name="specialty"
+                      value={formData.specialty}
+                      onChange={handleInputChange}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer hover:border-slate-300 transition-all duration-200"
+                      required
+                    >
+                      <option value="" disabled>Select Specialty</option>
+                      <option value="General Practice">General Practice</option>
+                      <option value="Cardiology">Cardiology</option>
+                      <option value="Dermatology">Dermatology</option>
+                      <option value="Orthopedic">Orthopedic</option>
+                      <option value="Pediatrics">Pediatrics</option>
+                      <option value="Gynecology">Gynecology</option>
+                      <option value="ENT">ENT</option>
+                      <option value="Neurology">Neurology</option>
+                      <option value="Dentistry">Dentistry</option>
+                      <option value="Ophthalmology">Ophthalmology</option>
+                      <option value="Psychiatry">Psychiatry</option>
+                      <option value="Physiotherapy">Physiotherapy</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
+                      <ChevronDown size={14} />
+                    </div>
                   </div>
-                  <input
-                    name="phone"
-                    type="tel"
-                    maxLength={10}
-                    placeholder="9876543210"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-[88px] pr-4 py-4 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all duration-200"
-                    required
-                  />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Primary Specialty</label>
-                <div className="relative group/input">
-                   <select
-                    name="specialty"
-                    value={formData.specialty}
-                    onChange={handleInputChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer hover:border-slate-300 transition-all duration-200"
-                    required
-                  >
-                    <option value="" disabled>Select Specialty</option>
-                    <option value="General Practice">General Practice</option>
-                    <option value="Cardiology">Cardiology</option>
-                    <option value="Dermatology">Dermatology</option>
-                    <option value="Orthopedic">Orthopedic</option>
-                    <option value="Pediatrics">Pediatrics</option>
-                    <option value="Gynecology">Gynecology</option>
-                    <option value="ENT">ENT</option>
-                    <option value="Neurology">Neurology</option>
-                    <option value="Dentistry">Dentistry</option>
-                    <option value="Ophthalmology">Ophthalmology</option>
-                    <option value="Psychiatry">Psychiatry</option>
-                    <option value="Physiotherapy">Physiotherapy</option>
-                  </select>
-                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
-                    <ChevronDown size={14} />
+              {/* Row 3: Fee & Status */}
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Consultation Fee</label>
+                  <div className="relative group/input">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within/input:text-blue-500 transition-colors">
+                      <IndianRupee size={18} />
+                    </div>
+                    <input
+                      name="consultation_fee"
+                      type="number"
+                      min="0"
+                      placeholder="e.g. 500"
+                      value={formData.consultation_fee}
+                      onChange={handleInputChange}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all duration-200"
+                      required
+                    />
                   </div>
                 </div>
-              </div>
 
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Operational Status</label>
@@ -308,6 +337,7 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
                     </div>
                   </div>
                 </div>
+              </div>
             </div>
 
             <div className="space-y-1.5">
