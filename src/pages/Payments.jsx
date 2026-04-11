@@ -127,13 +127,13 @@ const Payments = () => {
     <div className="min-h-screen flex bg-[#F4F7FE]">
       <Sidebar />
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="h-20 flex-shrink-0 bg-white border-b border-slate-100 px-10 flex items-center justify-between sticky top-0 z-20">
-          <div className="flex items-center gap-3">
-            <CreditCard className="text-blue-600" />
-            <div>
-              <h1 className="text-xl font-bold text-slate-800">Payments & Gateway</h1>
-              <p className="text-xs font-medium text-slate-500">Razorpay integration for QMedix clinics.</p>
+        <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 flex items-center justify-between sticky top-0 z-20">
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <CreditCard size={16} className="text-blue-600" />
+              <h1 className="text-lg font-bold text-slate-900 tracking-tight">Payments & Gateway</h1>
             </div>
+            <p className="text-xs font-medium text-slate-500">Razorpay integration for QMedix clinics.</p>
           </div>
           <div className="px-4 py-2 bg-blue-50 rounded-xl border border-blue-100/50">
             <span className="text-[11px] font-bold text-blue-700 uppercase tracking-wider flex items-center gap-2">
