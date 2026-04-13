@@ -116,9 +116,11 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess, onUpdateSuccess, onLo
 
               <div className="bg-slate-50/30 p-5 rounded-3xl border border-slate-100/30">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Professional Overview</p>
-                <p className="text-sm text-slate-500 leading-relaxed italic border-l-2 border-slate-200 pl-4 py-0.5">
-                  {doctorInfo.description || 'No description provided.'}
-                </p>
+                <div className="max-h-[160px] overflow-y-auto pr-2 custom-scrollbar">
+                  <p className="text-sm text-slate-500 leading-relaxed italic border-l-2 border-slate-200 pl-4 py-0.5">
+                    {doctorInfo.description || 'No description provided.'}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -156,32 +158,34 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess, onUpdateSuccess, onLo
                 </div>
               </div>
 
-              {availability?.weekly_schedule?.length > 0 ? (
-                <div className="grid gap-6">
-                  {availability.weekly_schedule.map((schedule, idx) => (
-                    <div key={idx} className="flex flex-col gap-4 p-5 rounded-2xl border border-slate-100 bg-white hover:border-blue-100 transition-colors">
-                      <h4 className="font-black text-xs text-slate-400 uppercase tracking-[0.2em]">{schedule.day}</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        {schedule.slots.map((slot, sIdx) => (
-                          <div key={sIdx} className="flex flex-col gap-1 p-3 bg-slate-50 border border-slate-100/50 rounded-xl group/slot hover:border-blue-200 transition-all">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Available window</span>
-                            <span className="text-sm font-bold text-slate-700 tracking-tight">
-                              {formatTime(slot.start_time.substring(0, 5))} – {formatTime(slot.end_time.substring(0, 5))}
-                            </span>
-                          </div>
-                        ))}
+              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar max-h-[550px]">
+                {availability?.weekly_schedule?.length > 0 ? (
+                  <div className="grid gap-6">
+                    {availability.weekly_schedule.map((schedule, idx) => (
+                      <div key={idx} className="flex flex-col gap-4 p-5 rounded-2xl border border-slate-100 bg-white hover:border-blue-100 transition-colors">
+                        <h4 className="font-black text-xs text-slate-400 uppercase tracking-[0.2em]">{schedule.day}</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          {schedule.slots.map((slot, sIdx) => (
+                            <div key={sIdx} className="flex flex-col gap-1 p-3 bg-slate-50 border border-slate-100/50 rounded-xl group/slot hover:border-blue-200 transition-all">
+                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Available window</span>
+                              <span className="text-sm font-bold text-slate-700 tracking-tight">
+                                {formatTime(slot.start_time.substring(0, 5))} – {formatTime(slot.end_time.substring(0, 5))}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex-1 flex flex-col items-center justify-center py-20 bg-slate-50/30 rounded-[32px] border border-dashed border-slate-200">
-                  <div className="p-6 bg-white rounded-full mb-6 shadow-sm">
-                    <PackageOpen size={60} strokeWidth={1} className="text-slate-300" />
+                    ))}
                   </div>
-                  <p className="text-slate-400 text-[11px] font-black tracking-[0.2em] uppercase">No Shifts Assigned</p>
-                </div>
-              )}
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center py-20 bg-slate-50/30 rounded-[32px] border border-dashed border-slate-200">
+                    <div className="p-6 bg-white rounded-full mb-6 shadow-sm">
+                      <PackageOpen size={60} strokeWidth={1} className="text-slate-300" />
+                    </div>
+                    <p className="text-slate-400 text-[11px] font-black tracking-[0.2em] uppercase">No Shifts Assigned</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
