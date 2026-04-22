@@ -25,7 +25,6 @@ const ClinicProfile = () => {
     city: '',
     state: '',
     address: '',
-    avg_service_minutes: '15',
   });
 
   useEffect(() => {
@@ -52,7 +51,6 @@ const ClinicProfile = () => {
           city: clinic.city || '',
           state: clinic.state || '',
           address: clinic.address || '',
-          avg_service_minutes: String(clinic.avg_service_minutes || '15'),
         });
       }
     } catch (error) {
@@ -111,7 +109,6 @@ const ClinicProfile = () => {
         city: formData.city,
         state: formData.state,
         zipcode: formData.zipcode,
-        avg_service_minutes: parseInt(formData.avg_service_minutes),
       };
       await API.patch(`/clinics/${clinicId}`, payload);
       toast.success('Clinic profile updated successfully!', {
@@ -338,49 +335,7 @@ const ClinicProfile = () => {
                   </div>
                 </div>
 
-                {/* SECTION: SETTINGS */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-                  <div className="lg:col-span-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 shadow-inner">
-                        <Clock size={18} />
-                      </div>
-                      <h3 className="font-bold text-slate-900 tracking-tight">Operations</h3>
-                    </div>
-                    <p className="text-xs font-medium text-slate-400 leading-relaxed">Adjust your queue dynamics and hospital availability.</p>
-                  </div>
 
-                  <div className="lg:col-span-8 space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-2 md:col-span-2">
-                        <div className="relative">
-                          <select
-                            name="avg_service_minutes"
-                            value={formData.avg_service_minutes}
-                            onChange={handleInputChange}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer transition-all duration-200"
-                          >
-                            {[5, 10, 15, 20, 30, 45, 60].map(m => (
-                              <option key={m} value={m}>
-                                {m} Minutes per session
-                              </option>
-                            ))}
-                          </select>
-                          <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none text-slate-400">
-                             <ChevronDown size={18} />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-slate-50 border border-slate-100 rounded-3xl p-5 flex items-start gap-4">
-                       <Info size={18} className="text-blue-500 mt-0.5 shrink-0" />
-                       <p className="text-xs font-medium text-slate-500 leading-relaxed">
-                         Changing your service time will affect the estimated wait time shown to new patients scanning your QR code.
-                       </p>
-                    </div>
-                  </div>
-                </div>
 
                 {/* ACTION: SAVE */}
                 <div className="pt-8 flex flex-col md:flex-row items-center gap-4">

@@ -26,7 +26,6 @@ const Onboarding = () => {
     city: '',
     state: '',
     address: '',
-    avg_service_minutes: '15',
   });
 
   const [errors, setErrors] = useState({});
@@ -106,7 +105,6 @@ const Onboarding = () => {
         city: formData.city,
         state: formData.state,
         zipcode: formData.zipcode,
-        avg_service_minutes: parseInt(formData.avg_service_minutes),
       };
 
       const { data } = await API.post('/clinics/register', payload);
@@ -263,54 +261,7 @@ const Onboarding = () => {
                 </div>
               </div>
 
-              {/* SECTION: OPERATIONS */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-4">
-                <div className="lg:col-span-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-inner">
-                      <Clock size={18} />
-                    </div>
-                    <h3 className="font-bold text-slate-900 tracking-tight">Operations</h3>
-                  </div>
-                  <p className="text-xs font-medium text-slate-400 leading-relaxed">Queue management settings.</p>
-                </div>
 
-                <div className="lg:col-span-8 space-y-10">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-2 md:col-span-2">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Avg Service Time</label>
-                      <div className="relative group/select">
-                        <select
-                          name="avg_service_minutes"
-                          value={formData.avg_service_minutes}
-                          onChange={handleInputChange}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer transition-all duration-200"
-                        >
-                          {[5, 10, 15, 20, 30, 45, 60].map(m => (
-                            <option key={m} value={m}>
-                              {m} Minutes per patient
-                            </option>
-                          ))}
-                        </select>
-                        <div className="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none text-slate-400 group-hover/select:text-blue-500 transition-colors">
-                          <ChevronDown size={18} strokeWidth={2.5} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* INFO BOX */}
-                  <div className="bg-blue-50/50 border border-blue-100 rounded-[32px] p-6 flex items-start gap-4">
-                    <div className="w-12 h-12 bg-white/50 backdrop-blur-sm border border-blue-100 rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
-                      <Sparkles size={24} className="text-blue-600" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-black text-blue-900 mb-0.5 uppercase tracking-tighter">Queue Optimization Active</h4>
-                      <p className="text-xs font-medium text-blue-700/80 leading-relaxed italic">QMedix will intelligently predict wait durations for your patients based on these settings.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
               {/* ACTION: SAVE */}
               <div className="pt-8 flex flex-col lg:flex-row items-center justify-between gap-8">
