@@ -41,7 +41,7 @@ API.interceptors.response.use(
     if (error.response?.status === 401 || error.response?.status === 403) {
       
       // If it's the login itself that threw 401, reject immediately
-      if (originalRequest.url?.includes('/auth/login')) {
+      if (originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/auth/login-with-otp')) {
          return Promise.reject(error);
       }
 
