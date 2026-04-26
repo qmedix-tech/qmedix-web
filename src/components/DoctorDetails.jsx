@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
+import {
   Stethoscope, Clock, Pencil, Trash2, XCircle, PackageOpen, IndianRupee
 } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -99,15 +99,24 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess, onUpdateSuccess, onLo
             <div className="space-y-6">
               {/* Info Grid */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100/50">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Contact</p>
+                <div className="col-span-2 p-4 bg-slate-50/80 rounded-2xl border border-slate-100/50">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Contact Number</p>
                   <p className="text-sm text-slate-700 font-bold tracking-tight truncate">{doctorInfo.phone}</p>
                 </div>
-                <div className="p-4 bg-emerald-50/80 rounded-2xl border border-emerald-100/50">
-                  <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1.5">Fee</p>
+                <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100/50">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Avg duration</p>
                   <div className="flex items-center gap-2">
-                    <IndianRupee size={14} className="text-emerald-600" />
-                    <p className="text-base text-emerald-700 font-black tracking-tight">
+                    <Clock size={14} className="text-slate-400" />
+                    <p className="text-base text-slate-700 font-black tracking-tight">
+                      {doctorInfo.avg_service_minutes || '10'} <span className="text-[10px] font-bold">min</span>
+                    </p>
+                  </div>
+                </div>
+                <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100/50">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Consultation Fee</p>
+                  <div className="flex items-center gap-2">
+                    <IndianRupee size={14} className="text-slate-400" />
+                    <p className="text-base text-slate-700 font-black tracking-tight">
                       {doctorInfo.consultation_fee || '0'}
                     </p>
                   </div>
@@ -125,15 +134,15 @@ const DoctorDetails = ({ doctorId = null, onDeleteSuccess, onUpdateSuccess, onLo
             </div>
 
             <div className="flex items-center gap-3">
-              <button 
-                onClick={handleDelete} 
+              <button
+                onClick={handleDelete}
                 className="w-14 py-3.5 bg-rose-50 text-rose-600 font-bold text-xs rounded-2xl hover:bg-rose-100 transition-all flex items-center justify-center border border-rose-100/50 active:scale-95"
                 title="Delete Specialist"
               >
                 <Trash2 size={18} />
               </button>
-              <button 
-                onClick={() => setIsEditModalOpen(true)} 
+              <button
+                onClick={() => setIsEditModalOpen(true)}
                 className="flex-1 py-3.5 bg-[#1E293B] text-white font-black text-[11px] rounded-2xl shadow-lg shadow-slate-200/50 flex items-center justify-center gap-2 hover:bg-slate-800 transition-all uppercase tracking-[0.2em] border border-slate-900 active:scale-[0.98]"
               >
                 <Pencil size={14} /> Edit profile

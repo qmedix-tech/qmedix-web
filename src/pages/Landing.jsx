@@ -40,15 +40,15 @@ const Landing = () => {
     },
     {
       title: "Smart Scheduling",
-      desc: "Robust appointment system that balances walk-ins and pre-booked online tokens.",
+      desc: "Robust appointment system that balances walk-ins and pre-booked online appointments.",
       icon: Calendar,
     },
   ];
 
   const patientFeatures = [
     {
-      title: "Online Token Booking",
-      desc: "Patients skip the physical queue by booking digital tokens through our mobile app.",
+      title: "Online Appointment Booking",
+      desc: "Patients skip the physical queue by booking digital appointments through our mobile app.",
       icon: Ticket,
     },
     {
@@ -66,8 +66,8 @@ const Landing = () => {
   const steps = [
     {
       id: "01",
-      title: "Patient books a token online",
-      desc: "Using the QMedix mobile app, patients find your clinic and book a digital token in seconds.",
+      title: "Patient books an appointment online",
+      desc: "Using the QMedix mobile app, patients find your clinic and book a digital appointment in seconds.",
     },
     {
       id: "02",
@@ -220,7 +220,7 @@ const Landing = () => {
                 </div>
                 <div className="space-y-2">
                   <p className="text-white text-3xl font-black">2.4m+</p>
-                  <p className="text-slate-400 text-sm font-bold uppercase tracking-widest">Tokens Managed Monthly</p>
+                  <p className="text-slate-400 text-sm font-bold uppercase tracking-widest">Appointments Managed Monthly</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                    <div className="p-4 bg-white/5 rounded-xl border border-white/10 text-left">

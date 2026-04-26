@@ -8,7 +8,8 @@ import API from '../api/axios';
 // Sub-components
 import GatewayConfigForm from '../components/payments/GatewayConfigForm';
 import GatewayStats from '../components/payments/GatewayStats';
-import TransactionPlaceholder from '../components/payments/TransactionPlaceholder';
+import TransactionHistory from '../components/payments/TransactionHistory';
+import TransactionDetailModal from '../components/payments/TransactionDetailModal';
 
 const PaymentShimmer = () => (
   <div className="space-y-6">
@@ -44,6 +45,8 @@ const Payments = () => {
   const [isKeyVisible, setIsKeyVisible] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState('');
   const [copied, setCopied] = useState(false);
+  const [selectedTxId, setSelectedTxId] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     key_id: '',
     key_secret: '',
@@ -54,7 +57,7 @@ const Payments = () => {
     try {
       const storedUser = localStorage.getItem('user');
       if (!storedUser) return;
-      
+
       const { clinic_id } = JSON.parse(storedUser);
       if (!clinic_id) return;
 
@@ -173,7 +176,7 @@ const Payments = () => {
                     </motion.div>
                   ) : (!config || !config.key_id) || isEditing ? (
                     <motion.div key="form" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                      <GatewayConfigForm 
+                      <GatewayConfigForm
                         formData={formData} setFormData={setFormData}
                         isSubmitting={isSubmitting} handleSetup={handleSetup}
                         isEditing={isEditing} onCancel={() => setIsEditing(false)}
@@ -184,8 +187,8 @@ const Payments = () => {
                     </motion.div>
                   ) : (
                     <motion.div key="stats" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}>
-                      <GatewayStats 
-                        config={config} 
+                      <GatewayStats
+                        config={config}
                         isKeyVisible={isKeyVisible} setIsKeyVisible={setIsKeyVisible}
                         onUpdateClick={onUpdateStart}
                       />
@@ -194,10 +197,23 @@ const Payments = () => {
                 </AnimatePresence>
               </div>
             </div>
-            {!isEditing && <TransactionPlaceholder />}
+            {!isEditing && (
+              <TransactionHistory
+                onViewDetail={(id) => {
+                  setSelectedTxId(id);
+                  setIsDetailModalOpen(true);
+                }}
+              />
+            )}
           </div>
         </div>
       </main>
+
+      <TransactionDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        transactionId={selectedTxId}
+      />
     </div>
   );
 };

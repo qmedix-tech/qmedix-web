@@ -42,6 +42,7 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
     description: '',
     is_active: true,
     consultation_fee: '',
+    avg_service_minutes: 10.0,
     schedules: [
       { day_of_week: 'MONDAY', start_time: '09:00', end_time: '17:00' }
     ]
@@ -138,6 +139,7 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
         description: formData.description?.trim() || null,
         is_active: formData.is_active,
         consultation_fee: Number(formData.consultation_fee),
+        avg_service_minutes: Number(formData.avg_service_minutes),
         availability: {
           weekly_schedule: formData.schedules.map(s => ({
             day: s.day_of_week,
@@ -199,13 +201,13 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="bg-white rounded-[40px] w-full max-w-2xl shadow-2xl overflow-hidden relative z-10 flex flex-col max-h-[90vh]"
+          className="bg-white rounded-[32px] w-full max-w-xl shadow-2xl overflow-hidden relative z-10 flex flex-col max-h-[95vh]"
         >
           {/* TOP ACCENT */}
           <div className="h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
 
           {/* HEADER */}
-          <div className="px-10 py-8 border-b border-slate-100 flex justify-between items-center bg-white">
+          <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-inner">
                 <Stethoscope size={24} />
@@ -226,7 +228,7 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
           </div>
 
           {/* FORM BODY */}
-          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar p-10 space-y-10">
+          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-8">
             {/* SECTION: IDENTITY */}
             <div className="space-y-8">
               {/* Row 1: Name (Full Width) */}
@@ -319,6 +321,29 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
                   </div>
                 </div>
 
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Avg Consultation (Mins)</label>
+                  <div className="relative group/input">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within/input:text-blue-500 transition-colors">
+                      <Clock size={18} />
+                    </div>
+                    <input
+                      name="avg_service_minutes"
+                      type="number"
+                      step="0.5"
+                      min="1"
+                      placeholder="e.g. 10"
+                      value={formData.avg_service_minutes}
+                      onChange={handleInputChange}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all duration-200"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 4: Status */}
+              <div className="grid md:grid-cols-1 gap-8">
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Operational Status</label>
                   <div
@@ -456,7 +481,7 @@ const AddDoctorModal = ({ isOpen, onClose, onSuccess }) => {
           </form>
 
           {/* FOOTER ACTIONS */}
-          <div className="px-10 py-8 bg-slate-50 border-t border-slate-100 flex gap-4">
+          <div className="px-8 py-6 bg-slate-50 border-t border-slate-100 flex gap-4">
             <Button
               type="button"
               variant="outline"

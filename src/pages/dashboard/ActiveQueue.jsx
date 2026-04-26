@@ -42,9 +42,9 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
 
     try {
       setSessionsLoading(true);
-      const { data } = await API.get(`/queues/${clinicId}/${id}/sessions`);
+      const { data } = await API.get(`/queues/${clinicId}/${doctorId}/sessions`);
       const allSessions = Array.isArray(data) ? data : [];
-      
+
       // Filter only sessions with waiting patients
       const activeSessions = allSessions.filter(s => s.waiting_count > 0);
       setSessions(activeSessions);
@@ -52,8 +52,8 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
       // Default Behavior: Select session matching current time if it has waiting patients
       const now = new Date();
       const currentHHMMSS = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-      
-      const matchingSession = activeSessions.find(s => 
+
+      const matchingSession = activeSessions.find(s =>
         currentHHMMSS >= s.start_time && currentHHMMSS <= s.end_time
       );
 
@@ -117,7 +117,7 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
 
     try {
       setActionLoading({ action, tokenId });
-      await API.post(`/queues/${clinicId}/${doctorId}/${action}`);
+      await API.post(`/queues/${clinicId}/doctor/${doctorId}/${action}`);
 
       const actionLabels = {
         'call-next': 'Next patient called',
@@ -140,7 +140,7 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
   const handleCancelToken = async (token) => {
     if (!token || actionLoading) return;
 
-    const confirmText = `Are you sure you want to cancel token #${token.token_number} for ${token.patient_name || 'this patient'}? This action cannot be undone.`;
+    const confirmText = `Are you sure you want to cancel appointment #${token.token_number} for ${token.patient_name || 'this patient'}? This action cannot be undone.`;
     if (!window.confirm(confirmText)) return;
 
     try {
@@ -148,13 +148,13 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
       setActionLoading({ action: 'cancel', tokenId });
 
       await API.delete(`/tokens/${tokenId}/cancel`);
-      toast.success(`Token #${token.token_number} cancelled`);
+      toast.success(`Appointment #${token.token_number} cancelled`);
 
       await fetchActiveTokens();
       if (onQueueUpdate) onQueueUpdate();
     } catch (error) {
       console.error('Failed to cancel token:', error);
-      const msg = error.response?.data?.errorMessage || 'Failed to cancel token';
+      const msg = error.response?.data?.errorMessage || 'Failed to cancel appointment';
       toast.error(msg);
     } finally {
       setActionLoading(null);
@@ -223,18 +223,11 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
       {/* QUEUE CONTENT */}
       <div className="bg-white rounded-3xl border border-slate-200 shadow-[0_4px_20px_rgba(0,0,0,0.03)] overflow-hidden">
         {/* TABLE HEADER */}
-        <div className="grid grid-cols-[0.8fr_2fr_1.3fr_1.2fr_1fr_1.2fr] px-8 py-4 border-b border-slate-200 bg-slate-50/50 items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-10 flex-shrink-0" />
-            <div className="text-[11px] font-black text-slate-400 border-none bg-transparent uppercase tracking-widest">Token</div>
-          </div>
-          <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest pl-2">Patient Details</div>
-          <div className="flex items-center gap-1.5 pl-1.5 focus:outline-none focus:ring-0">
-            <div className="w-[14px] flex-shrink-0" />
-            <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Phone</div>
-          </div>
-          <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Booked Slot</div>
-          <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Status</div>
+        <div className="grid grid-cols-[0.8fr_2fr_1.3fr_1.2fr_1.2fr] px-8 py-4 border-b border-slate-200 bg-slate-50/50 items-center">
+          <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Slot No</div>
+          <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Patient Name</div>
+          <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Phone No</div>
+          <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Arrival</div>
           <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">Actions</div>
         </div>
 
@@ -243,12 +236,11 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
           {loading ? (
             <div className="divide-y divide-slate-100">
               {[1, 2, 3].map(i => (
-                <div key={i} className="grid grid-cols-[0.8fr_2fr_1.3fr_1.2fr_1fr_1.2fr] px-8 py-5 items-center relative overflow-hidden">
+                <div key={i} className="grid grid-cols-[0.8fr_2fr_1.3fr_1.2fr_1.2fr] px-8 py-5 items-center relative overflow-hidden">
                   <div className="w-10 h-10 bg-slate-100 rounded-xl animate-shimmer" />
-                  <div className="h-4 bg-slate-100 rounded-md w-2/3 ml-6 animate-shimmer" />
-                  <div className="h-4 bg-slate-50 rounded-md w-20 ml-4 animate-shimmer" />
+                  <div className="h-4 bg-slate-100 rounded-md w-2/3 animate-shimmer" />
+                  <div className="h-4 bg-slate-50 rounded-md w-20 animate-shimmer" />
                   <div className="h-4 bg-slate-50 rounded-md w-16 animate-shimmer" />
-                  <div className="h-6 bg-slate-50 rounded-full w-16 animate-shimmer" />
                   <div className="flex gap-2 justify-center">
                     <div className="w-8 h-8 bg-slate-100 rounded-lg animate-shimmer" />
                     <div className="w-8 h-8 bg-slate-100 rounded-lg animate-shimmer" />
@@ -266,41 +258,28 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
                     initial={{ opacity: 0, scale: 0.98, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.98, x: -10 }}
-                    className="grid grid-cols-[0.8fr_2fr_1.3fr_1.2fr_1fr_1.2fr] px-8 py-5 items-center hover:bg-slate-50/80 transition-colors group border-b border-slate-100 last:border-0"
+                    className="grid grid-cols-[0.8fr_2fr_1.3fr_1.2fr_1.2fr] px-8 py-5 items-center hover:bg-slate-50/80 transition-colors group border-b border-slate-100 last:border-0"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 flex-shrink-0 bg-slate-100 text-slate-700 rounded-xl flex items-center justify-center font-bold shadow-sm transition-all group-hover:bg-[#1E293B] group-hover:text-white">
+                    <div className="flex items-center">
+                      <div className="w-9 h-9 flex-shrink-0 bg-slate-100 text-slate-700 rounded-lg flex items-center justify-center font-bold shadow-sm transition-all group-hover:bg-[#1E293B] group-hover:text-white">
                         #{token.token_number}
                       </div>
                     </div>
 
                     <div className="pl-2">
-
                       <p className="text-[14px] font-bold text-slate-800 line-clamp-1">
                         {token.patient_name || token.name || 'Anonymous Patient'}
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-600 font-mono tracking-tight pl-1.5 focus:outline-none">
+                    <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-600 font-mono tracking-tight focus:outline-none">
                       <Phone size={14} className="opacity-40" />
                       {token.patient_phone || token.phone || '--'}
                     </div>
 
                     <div className="flex items-center gap-1.5 text-slate-600 font-bold">
                       <Clock size={14} className="text-blue-500 opacity-60" />
-                      <span className="text-[13px]">{formatTime(token.booked_slot_start?.substring(0, 5))}</span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {idx === 0 ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-black uppercase tracking-widest border border-blue-100">
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" /> Next
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-widest border border-slate-200">
-                          Waiting
-                        </span>
-                      )}
+                      <span className="text-[13px]">{formatTime(token.estimated_arrival_time?.substring(0, 5)) || '--:--'}</span>
                     </div>
 
                     <div className="flex items-center gap-2 justify-center pr-2">
@@ -320,7 +299,7 @@ const ActiveQueue = ({ doctorId, onNewPatient, onQueueUpdate, refreshTrigger }) 
                         onClick={() => handleCancelToken(token)}
                         disabled={!!actionLoading}
                         className="relative p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-all border border-slate-100 bg-white hover:border-rose-200 flex items-center justify-center shadow-sm"
-                        title="Delete Token"
+                        title="Delete Appointment"
                       >
                         {actionLoading?.action === 'cancel' && actionLoading?.tokenId === (token.id || token.token_id) ? (
                           <div className="w-4 h-4 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />

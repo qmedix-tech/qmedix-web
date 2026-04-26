@@ -161,10 +161,10 @@ const Onboarding = () => {
           <div className="bg-white border border-slate-100 rounded-[48px] shadow-2xl shadow-slate-200/50 overflow-hidden">
             <div className="h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
 
-            <form onSubmit={handleSubmit} className="p-8 md:p-14 space-y-12">
+            <form onSubmit={handleSubmit} className="p-8 md:p-14 space-y-8">
 
               {/* SECTION: BASIC INFO */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-12 border-b border-slate-50">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-8 border-b border-slate-50">
                 <div className="lg:col-span-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-inner">
@@ -204,7 +204,7 @@ const Onboarding = () => {
               </div>
 
               {/* SECTION: ADDRESS */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-12 border-b border-slate-50">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-8 border-b border-slate-50">
                 <div className="lg:col-span-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-inner">
@@ -259,12 +259,8 @@ const Onboarding = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-
-
-
-              {/* ACTION: SAVE */}
-              <div className="pt-8 flex flex-col lg:flex-row items-center justify-between gap-8">
+              </div>              {/* ACTION: SAVE */}
+              <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
                 <div className="flex items-center gap-4 px-6 py-4 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner group transition-all">
                   <ShieldCheck size={20} className="text-slate-400 group-hover:text-emerald-500 transition-colors" />
                   <div>

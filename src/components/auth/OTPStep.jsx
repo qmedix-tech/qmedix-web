@@ -1,8 +1,8 @@
 import React from "react";
 import { Mail, ChevronLeft, KeyRound, LogIn, Loader2, RefreshCcw, Clock } from "lucide-react";
 import { motion } from "framer-motion";
-import Input from "../Input";
 import Button from "../Button";
+import OTPInput from "./OTPInput";
 
 /**
  * Second step of the Auth flow: OTP verification.
@@ -19,6 +19,10 @@ const OTPStep = ({
   requestingOtp, 
   resendTimer 
 }) => {
+  const handleOTPChange = (val) => {
+    onInputChange({ target: { name: 'otp', value: val } });
+  };
+
   return (
     <motion.form
       key="otp-step"
@@ -53,17 +57,15 @@ const OTPStep = ({
         </button>
       </div>
 
-      <Input
-        label="Enter OTP"
-        name="otp"
-        type="text"
-        placeholder="000000"
-        value={otp}
-        onChange={onInputChange}
-        icon={KeyRound}
-        required
-        maxLength={6}
-      />
+      <div className="space-y-3 flex flex-col items-center">
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Verification Code</label>
+        
+        <OTPInput 
+          value={otp} 
+          onChange={handleOTPChange} 
+          disabled={loading} 
+        />
+      </div>
 
       <div className="space-y-3">
         <Button

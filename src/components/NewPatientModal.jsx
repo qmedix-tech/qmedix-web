@@ -6,7 +6,7 @@ import API from '../api/axios';
 import Input from './Input';
 import Button from './Button';
 
-const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
+const NewPatientModal = ({ isOpen, onClose, onSuccess, initialData }) => {
   const [loading, setLoading] = useState(false);
   const [doctorsLoading, setDoctorsLoading] = useState(false);
   const [doctors, setDoctors] = useState([]);
@@ -32,30 +32,62 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
 
   const [doctorSchedule, setDoctorSchedule] = useState([]);
   const [scheduleLoading, setScheduleLoading] = useState(false);
+  const [currentQueueLength, setCurrentQueueLength] = useState(0);
+  const [avgServiceMinutes, setAvgServiceMinutes] = useState(10);
 
   useEffect(() => {
     if (isOpen) {
       fetchDoctors();
+      if (initialData) {
+        setFormData(prev => ({
+          ...prev,
+          patient_name: initialData.name || initialData.patient_name || '',
+          patient_phone: initialData.phone || initialData.patient_phone || '',
+        }));
+      } else {
+        // Reset form if no initial data
+        setFormData({
+          patient_name: '',
+          patient_phone: '',
+          doctor_id: '',
+          date: new Date().toISOString().split('T')[0],
+          slot_start: '',
+          slot_end: '',
+        });
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, initialData]);
 
   useEffect(() => {
     if (formData.doctor_id && isOpen) {
-      fetchDoctorSchedule(formData.doctor_id);
+      fetchDoctorDetails(formData.doctor_id);
+      fetchQueueStatus(formData.doctor_id);
     }
   }, [formData.doctor_id, isOpen]);
 
-  const fetchDoctorSchedule = async (doctorId) => {
+  const fetchDoctorDetails = async (doctorId) => {
     if (!doctorId) return;
     try {
       setScheduleLoading(true);
       const { data } = await API.get(`/doctors/details/${doctorId}`);
       setDoctorSchedule(data.availability?.weekly_schedule || []);
+      setAvgServiceMinutes(data.doctor?.avg_service_minutes || 10);
     } catch (e) {
       console.error('Failed to load schedule:', e);
       setDoctorSchedule([]);
     } finally {
       setScheduleLoading(false);
+    }
+  };
+
+  const fetchQueueStatus = async (doctorId) => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const { data } = await API.get(`/queues/${user.clinic_id}/doctor/${doctorId}/state`);
+      setCurrentQueueLength(data.total_waiting || 0);
+    } catch (e) {
+      console.error('Failed to fetch queue status:', e);
+      setCurrentQueueLength(0);
     }
   };
 
@@ -184,7 +216,7 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
 
       const { data } = await API.post('/tokens/manual-book', payload);
 
-      toast.success('Token booked successfully!', {
+      toast.success('Appointment booked successfully!', {
         icon: <CheckCircle2 className="text-emerald-500" />
       });
 
@@ -235,20 +267,20 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="bg-white rounded-[40px] w-full max-w-2xl shadow-2xl overflow-hidden relative z-10 flex flex-col max-h-[90vh]"
+          className="bg-white rounded-[32px] w-full max-w-xl shadow-2xl overflow-hidden relative z-10 flex flex-col max-h-[90vh]"
         >
 
           {/* TOP ACCENT */}
           <div className="h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
 
           {/* HEADER */}
-          <div className="px-10 py-8 border-b border-slate-100 flex justify-between items-center bg-white">
+          <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-inner">
                 <UserPlus size={24} />
               </div>
               <div>
-                <h2 className="text-xl font-black text-slate-900 tracking-tight">Book Token</h2>
+                <h2 className="text-xl font-black text-slate-900 tracking-tight">Book Appointment</h2>
                 <p className="text-xs font-medium text-slate-500 mt-0.5 uppercase tracking-widest">Manual Registration</p>
               </div>
             </div>
@@ -264,7 +296,7 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
           </div>
 
           {/* BODY */}
-          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar p-10 space-y-10">
+          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-8">
 
             <div className="space-y-6">
               {/* ROW 1: PATIENT NAME */}
@@ -277,6 +309,7 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
                   placeholder="e.g. John Doe"
                   icon={User}
                   required
+                  readOnly={!!initialData}
                 />
               </div>
 
@@ -293,6 +326,7 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
                   icon={Phone}
                   prefixText="+91"
                   required
+                  readOnly={!!initialData}
                 />
 
                 <div className="space-y-1.5">
@@ -309,7 +343,7 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
                       name="doctor_id"
                       value={formData.doctor_id}
                       onChange={handleInputChange}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-12 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm appearance-none"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-12 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none"
                       required
                     >
                       <option value="" disabled>Select a doctor</option>
@@ -362,7 +396,7 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
                         const [start, end] = val.split('-');
                         setFormData(prev => ({ ...prev, slot_start: start, slot_end: end }));
                       }}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-12 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm appearance-none"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-12 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none"
                       required
                     >
                       <option value="" disabled>Select available time</option>
@@ -387,13 +421,37 @@ const NewPatientModal = ({ isOpen, onClose, onSuccess }) => {
                   </div>
                 </div>
               </div>
+
+              {/* {formData.date === new Date().toISOString().split('T')[0] && formData.doctor_id && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-amber-50 border border-amber-100 rounded-2xl p-4 flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3 text-amber-700">
+                    <Clock size={18} />
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">Expected Wait Time</p>
+                      <p className="text-sm font-bold tracking-tight">
+                        ~{currentQueueLength * avgServiceMinutes} minutes
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest leading-none mb-1">Queue Depth</p>
+                    <p className="text-sm font-black text-amber-700">
+                      {currentQueueLength} Patients
+                    </p>
+                  </div>
+                </motion.div>
+              )} */}
             </div>
 
           </form>
 
 
           {/* FOOTER */}
-          <div className="px-10 py-8 bg-slate-50 border-t border-slate-100 flex gap-4 mt-9">
+          <div className="px-8 py-6 bg-slate-50 border-t border-slate-100 flex gap-4 mt-4">
             <Button
               type="button"
               variant="outline"

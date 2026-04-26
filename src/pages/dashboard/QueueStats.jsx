@@ -27,7 +27,7 @@ const QueueStats = ({ clinicId, doctorId, refreshTrigger, onAction }) => {
     }
     try {
       setLoading(true); // Ensure loading starts only when we have data to fetch
-      const { data } = await API.get(`/queues/${clinicId}/${doctorId}`);
+      const { data } = await API.get(`/queues/${clinicId}/doctor/${doctorId}/state`);
       setStats(data);
     } catch (e) {
       console.error(e);
@@ -39,7 +39,7 @@ const QueueStats = ({ clinicId, doctorId, refreshTrigger, onAction }) => {
   const handleCompleteVisit = async () => {
     try {
       setActionLoading(true);
-      await API.post(`/queues/${clinicId}/${doctorId}/complete`);
+      await API.post(`/queues/${clinicId}/doctor/${doctorId}/complete`);
       toast.success("Completed");
       onAction && onAction();
     } catch {

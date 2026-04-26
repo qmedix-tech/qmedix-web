@@ -53,6 +53,7 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
     description: '',
     is_active: true,
     consultation_fee: '',
+    avg_service_minutes: 10.0,
     schedules: []
   });
 
@@ -78,6 +79,7 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
         description: doctor.description || '',
         is_active: doctor.is_active,
         consultation_fee: doctor.consultation_fee || '',
+        avg_service_minutes: doctor.avg_service_minutes || 10.0,
         schedules: finalSchedules
       });
     }
@@ -158,6 +160,7 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
         description: formData.description?.trim() || null,
         is_active: formData.is_active,
         consultation_fee: Number(formData.consultation_fee),
+        avg_service_minutes: Number(formData.avg_service_minutes),
         availability: {
           weekly_schedule: Object.values(
             formData.schedules.reduce((acc, s) => {
@@ -365,6 +368,27 @@ const EditDoctorModal = ({ isOpen, onClose, onSuccess, onDeleteSuccess, doctor, 
                     </div>
                   </div>
 
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Avg Consultation (Mins)</label>
+                    <div className="relative group/input">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+                        <Clock size={18} />
+                      </div>
+                      <input
+                        name="avg_service_minutes"
+                        type="number"
+                        step="0.5"
+                        min="1"
+                        value={formData.avg_service_minutes}
+                        onChange={handleInputChange}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-1 gap-8">
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Operational Status</label>
                     <div

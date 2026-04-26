@@ -17,7 +17,7 @@ const PatientsList = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [preFillData, setPreFillData] = useState(null);
 
   useEffect(() => {
     fetchPatients();
@@ -66,7 +66,6 @@ const PatientsList = () => {
   };
 
   const filteredPatients = patients.filter(p => {
-    // We remove client-side text filtering because API handles it, but keep date filtering.
     const rawDate = p.created_at;
     let formattedDate = '';
 
@@ -105,7 +104,10 @@ const PatientsList = () => {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => setIsPatientModalOpen(true)}
+            onClick={() => {
+              setPreFillData(null);
+              setIsPatientModalOpen(true);
+            }}
             className="btn-premium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center gap-2 shadow-lg shadow-blue-200 px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
           >
             <UserPlus size={18} />
@@ -172,8 +174,8 @@ const PatientsList = () => {
         {/* CONTENT */}
         <div className="flex-1 p-8 overflow-y-auto custom-scrollbar">
           <div className="max-w-[1400px] mx-auto w-full">
-            {selectedPatient ? (
-              <PatientDetails patient={selectedPatient} onBack={() => setSelectedPatient(null)} />
+            {false ? (
+              <PatientDetails patient={null} onBack={() => {}} />
             ) : (
               /* TABLE VIEW */
               <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
@@ -252,11 +254,13 @@ const PatientsList = () => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedPatient(patient);
+                            setPreFillData(patient);
+                            setIsPatientModalOpen(true);
                           }}
                           className="px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-colors shadow-sm inline-flex items-center gap-1.5"
                         >
-                          View Details
+                          <Calendar size={14} />
+                          Book Again
                         </button>
                       </div>
                     </motion.div>
@@ -277,7 +281,11 @@ const PatientsList = () => {
 
         <NewPatientModal
           isOpen={isPatientModalOpen}
-          onClose={() => setIsPatientModalOpen(false)}
+          onClose={() => {
+            setIsPatientModalOpen(false);
+            setPreFillData(null);
+          }}
+          initialData={preFillData}
           onSuccess={fetchPatients}
         />
       </main>

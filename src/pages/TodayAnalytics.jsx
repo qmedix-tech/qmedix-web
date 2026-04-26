@@ -50,7 +50,7 @@ const TodayAnalytics = () => {
       color: 'text-blue-600',
       bg: 'bg-blue-50',
       borderColor: 'border-blue-100',
-      description: 'New tokens today'
+      description: 'New appointments today'
     },
     {
       label: 'Served',
@@ -77,7 +77,7 @@ const TodayAnalytics = () => {
       color: 'text-rose-600',
       bg: 'bg-rose-50',
       borderColor: 'border-rose-100',
-      description: 'Removed tokens'
+      description: 'Removed appointments'
     }
   ];
 
@@ -252,7 +252,7 @@ const TodayAnalytics = () => {
                     <p className="text-blue-100 font-medium text-sm leading-relaxed opacity-90">
                       {stats?.total_completed > 0 
                         ? `Exceptional work! You've successfully finished ${stats.total_completed} patient visits today.` 
-                        : "Ready to start? Your first completed token will appear here."}
+                        : "Ready to start? Your first completed appointment will appear here."}
                       {stats?.total_skipped > 0 && ` Heads up: ${stats.total_skipped} skipped patients are pending return.`}
                     </p>
                     
@@ -288,7 +288,7 @@ const TodayAnalytics = () => {
                   </div>
                   <div>
                     <h4 className="text-sm font-black text-slate-800">Pro Management Tip</h4>
-                    <p className="text-xs font-medium text-slate-500">Monitor skipped tokens regularly to keep your queue moving and avoid sudden rush periods.</p>
+                    <p className="text-xs font-medium text-slate-500">Monitor skipped appointments regularly to keep your queue moving and avoid sudden rush periods.</p>
                   </div>
                </div>
             </div>

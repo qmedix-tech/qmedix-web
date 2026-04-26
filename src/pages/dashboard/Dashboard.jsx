@@ -19,10 +19,13 @@ const Dashboard = () => {
   const [doctors, setDoctors] = useState([]);
   const [doctorsLoading, setDoctorsLoading] = useState(false);
   const [selectedDoctorId, setSelectedDoctorId] = useState('');
+  const [paymentConfig, setPaymentConfig] = useState(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchClinicData();
+    fetchPaymentConfig();
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
@@ -78,11 +81,31 @@ const Dashboard = () => {
         ...storedUser,
         clinicName: clinicName
       };
+      
+      // Update local storage AND state
       localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
     } catch (error) {
       console.error('Failed to fetch clinic data:', error);
     }
   }
+
+  const fetchPaymentConfig = async () => {
+    try {
+      const stored = localStorage.getItem('user');
+      if (!stored) return;
+      const { clinic_id } = JSON.parse(stored);
+      
+      setPaymentLoading(true);
+      const { data } = await API.get(`/clinics/${clinic_id}/payment-config`);
+      setPaymentConfig(data?.data || data);
+    } catch (error) {
+      console.error('Failed to fetch payment config:', error);
+      setPaymentConfig(null);
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
 
   const handleQueueUpdate = () => {
     setRefreshTrigger(prev => prev + 1);
@@ -138,6 +161,30 @@ const Dashboard = () => {
         <div className="flex-1 p-5 md:p-6 space-y-5 overflow-y-auto custom-scrollbar">
 
           <div className="max-w-[1200px] mx-auto space-y-5">
+            {/* PAYMENT CONFIG WARNING */}
+            {!paymentLoading && (!paymentConfig || !paymentConfig.key_id) && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-4 shadow-sm"
+              >
+                <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Bell size={20} className="text-amber-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-bold text-amber-900">Payment Setup Required</h3>
+                  <p className="text-[13px] font-medium text-amber-700 mt-0.5">
+                    Please complete your payment setup first. After setup, you’ll be able to accept patient bookings.
+                  </p>
+                </div>
+                <button
+                  onClick={() => navigate('/dashboard/payments')}
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-[12px] font-bold rounded-xl transition-colors shadow-sm"
+                >
+                  Configure Now
+                </button>
+              </motion.div>
+            )}
             {/* HERO-ISH SECTION / DATE */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">

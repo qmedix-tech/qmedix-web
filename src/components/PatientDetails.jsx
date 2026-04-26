@@ -34,8 +34,8 @@ const PatientDetails = ({ patient = null, onBack }) => {
 
   if (loading) {
     return (
-      <div className="flex flex-col md:flex-row gap-6 w-full max-w-6xl items-start animate-pulse mt-4">
-        <div className="w-full md:w-[340px] h-96 bg-white border border-slate-100 rounded-xl" />
+      <div className="flex flex-col md:flex-row gap-4 w-full max-w-4xl items-start animate-pulse mt-4">
+        <div className="w-full md:w-[280px] h-96 bg-white border border-slate-100 rounded-xl" />
         <div className="flex-1 h-96 bg-white border border-slate-100 rounded-xl" />
       </div>
     );
@@ -71,9 +71,9 @@ const PatientDetails = ({ patient = null, onBack }) => {
         Back to Patients
       </button>
 
-      <div className="flex flex-col md:flex-row gap-6 w-full max-w-6xl items-start">
+      <div className="flex flex-col md:flex-row gap-4 w-full max-w-4xl items-start">
         {/* LEFT CARD */}
-        <div className="w-full md:w-[340px] bg-white rounded-xl shadow-sm p-8 flex flex-col shrink-0 border border-slate-100">
+        <div className="w-full md:w-[280px] bg-white rounded-xl shadow-sm p-6 flex flex-col shrink-0 border border-slate-100">
           <div className="flex flex-col items-center text-center">
              <div className="w-32 h-32 rounded-full mb-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-4 border-white shadow-xl shadow-blue-500/10 flex flex-col items-center justify-center text-blue-600 font-bold overflow-hidden relative group/dp">
                {dpUrl ? (
@@ -118,7 +118,7 @@ const PatientDetails = ({ patient = null, onBack }) => {
         {/* RIGHT CARD CONTAINER */}
         <div className="flex-1 w-full flex flex-col gap-5">
            {/* TOP NAV TABS */}
-           <div className="bg-white rounded-xl shadow-sm px-8 py-1.5 flex items-center gap-8 border border-slate-100">
+           <div className="bg-white rounded-xl shadow-sm px-6 py-1.5 flex items-center gap-8 border border-slate-100">
              <button
                className="py-3.5 font-bold text-sm tracking-wide border-b-2 transition-colors border-[#222E3C] text-[#222E3C]"
              >
@@ -127,8 +127,8 @@ const PatientDetails = ({ patient = null, onBack }) => {
            </div>
 
            {/* MAIN TAB CONTENT */}
-           <div className="bg-white rounded-xl shadow-sm p-10 flex-1 min-h-[500px] border border-slate-100">
-             <div className="flex items-center gap-8 mb-10 border-b border-slate-100">
+           <div className="bg-white rounded-xl shadow-sm p-6 flex-1 min-h-[400px] border border-slate-100">
+             <div className="flex items-center gap-6 mb-6 border-b border-slate-100">
                 <button className="text-sm font-bold tracking-wide text-[#222E3C] border-b-2 border-[#222E3C] pb-3 -mb-[2px]">
                   Past Visits
                 </button>
@@ -169,7 +169,7 @@ const PatientDetails = ({ patient = null, onBack }) => {
                              {visit.slot?.start_time?.substring(0, 5) || '--:--'} - {visit.slot?.end_time?.substring(0, 5) || '--:--'}
                            </p>
                            <p className="inline-block mt-1 px-2 py-0.5 bg-indigo-50 text-indigo-600 text-[10px] font-bold uppercase tracking-wider rounded border border-indigo-100/50">
-                             Token #{visit.token_number}
+                             Slot No #{visit.token_number}
                            </p>
                          </div>
                       </div>
