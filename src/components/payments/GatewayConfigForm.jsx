@@ -98,7 +98,7 @@ const GatewayConfigForm = ({
         </div>
       </div>
 
-      <div className="flex justify-end gap-3 pt-2">
+      <div className="flex justify-end gap-6 pt-2">
         {isEditing && (
           <button
             type="button"

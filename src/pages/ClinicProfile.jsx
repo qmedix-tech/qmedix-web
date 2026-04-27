@@ -270,7 +270,7 @@ const ClinicProfile = () => {
                 </div>
 
                 {/* SECTION: ADDRESS */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-12 border-b border-slate-50">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-6 border-b border-slate-50">
                   <div className="lg:col-span-4">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-inner">
@@ -335,10 +335,8 @@ const ClinicProfile = () => {
                   </div>
                 </div>
 
-
-
                 {/* ACTION: SAVE */}
-                <div className="pt-8 flex flex-col md:flex-row items-center gap-4">
+                <div className="pt-6 flex flex-col md:flex-row items-center gap-4">
                   <motion.button
                     disabled={loading}
                     className="w-full md:flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-xl shadow-blue-100 hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
