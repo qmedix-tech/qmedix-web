@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Receipt, User, Phone, Calendar, Clock, 
-  Stethoscope, CreditCard, Hash, CheckCircle2,
+  Stethoscope, CreditCard, Ticket, CheckCircle2,
   XCircle, AlertCircle, Loader2
 } from 'lucide-react';
 import API from '../../api/axios';
@@ -177,7 +177,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transactionId }) => {
                         <span className="text-sm font-bold tracking-tight">{tx.doctor_name || 'N/A'}</span>
                       </div>
                       <div className="flex items-center gap-2 text-slate-700 pl-0.5">
-                        <Hash size={12} className="text-blue-500" />
+                        <Ticket size={12} className="text-blue-500" />
                         <span className="text-[11px] font-black text-blue-600 uppercase tracking-tight">No. #{tx.token_number}</span>
                       </div>
                     </div>
